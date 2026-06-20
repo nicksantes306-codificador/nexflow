@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   NEXFLOW · Design tokens (Sprint 0 — semente do @nexflow/ui)
+   Laranja da marca #CC3600 em escala 50–950 + azul-escuro admin #0F172A.
+   No Sprint 3 estes tokens migram para /packages/ui (Style Dictionary).
+   ========================================================================== */
+@theme {
+  --color-brand-50: #fff3ed;
+  --color-brand-100: #ffe2d2;
+  --color-brand-200: #ffc0a5;
+  --color-brand-300: #ff9569;
+  --color-brand-400: #fb6a3c;
+  --color-brand-500: #ee4a1f;
+  --color-brand-600: #cc3600; /* marca NEXFLOW */
+  --color-brand-700: #a82c05;
+  --color-brand-800: #87260b;
+  --color-brand-900: #6f220c;
+  --color-brand-950: #3c0e03;
+
+  --color-navy-700: #1e293b;
+  --color-navy-800: #172033;
+  --color-navy-900: #0f172a; /* fundo admin */
+  --color-navy-950: #0a0f1d;
+
+  --radius-card: 0.75rem;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* Tokens semânticos por tema ------------------------------------------------ */
+:root {
+  --bg: #f8fafc;
+  --panel: #ffffff;
+  --bg2: #f1f5f9;
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+}
+[data-theme="dark"] {
+  --bg: #0f172a;
+  --panel: #172033;
+  --bg2: #1e293b;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+  --border: #243044;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Cores dos estágios do Kanban (espelham ESTAGIO_COR do index.html) */
+:root {
+  --stage-novo: #64748b;
+  --stage-contato: #0d9488;
+  --stage-orcamento: #cc3600;
+  --stage-negociacao: #d97706;
+  --stage-proposta: #7c3aed;
+  --stage-aprovado: #059669;
+  --stage-perdido: #dc2626;
+}

@@ -1,0 +1,35 @@
+name: Backup diário (pg_dump → S3)
+
+on:
+  schedule:
+    - cron: "0 6 * * *" # 06:00 UTC (~03:00 BRT) todos os dias
+  workflow_dispatch: {}
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Instalar cliente Postgres
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: pg_dump
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          STAMP=$(date +%Y%m%d)
+          pg_dump "$SUPABASE_DB_URL" | gzip > "nexflow-$STAMP.sql.gz"
+          echo "ARQ=nexflow-$STAMP.sql.gz" >> "$GITHUB_ENV"
+
+      - name: Enviar para S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          S3_BUCKET: ${{ secrets.BACKUP_S3_BUCKET }}
+        run: |
+          aws s3 cp "$ARQ" "s3://$S3_BUCKET/db/$ARQ"
+
+# Requer secrets: SUPABASE_DB_URL, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY,
+# AWS_DEFAULT_REGION, BACKUP_S3_BUCKET. Retenção/lifecycle configurados no bucket.
