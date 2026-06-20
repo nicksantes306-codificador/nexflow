@@ -46,10 +46,10 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Já logado abrindo /login → manda p/ o CRM.
+  // Já logado abrindo /login → manda p/ o dashboard.
   if (user && path.startsWith("/login")) {
     const url = request.nextUrl.clone();
-    url.pathname = "/crm";
+    url.pathname = "/dashboard";
     return NextResponse.redirect(url);
   }
 

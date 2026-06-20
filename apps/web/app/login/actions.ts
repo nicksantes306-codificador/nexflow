@@ -16,7 +16,7 @@ export async function login(
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return { error: traduzErro(error.message) };
 
-  redirect("/crm");
+  redirect("/dashboard");
 }
 
 export async function signup(
@@ -36,7 +36,7 @@ export async function signup(
   if (error) return { error: traduzErro(error.message) };
 
   // handle_new_user() já criou tenant + membership + profile.
-  redirect("/crm");
+  redirect("/dashboard");
 }
 
 export async function logout() {
