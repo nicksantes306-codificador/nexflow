@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/app/login/actions";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LogoMark } from "@/components/logo";
 
 type Item = { id: string; label: string; icon: React.ReactNode; tag?: string };
 
@@ -98,17 +99,7 @@ export function AppSidebar({ email, plan }: { email: string; plan: string }) {
     <aside className="sticky top-0 hidden h-screen w-[264px] shrink-0 flex-col border-r border-[var(--border)] bg-[var(--panel)] px-4 py-5 md:flex">
       {/* Brand */}
       <div className="flex items-center gap-3 px-2 pb-5">
-        <span
-          className="grid h-[38px] w-[38px] place-items-center rounded-xl text-white"
-          style={{
-            background: "linear-gradient(140deg,var(--accent),var(--brand-700,#1d4ed8))",
-            boxShadow: "0 10px 22px -8px color-mix(in srgb,var(--accent) 60%,transparent)",
-          }}
-        >
-          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M4 19V5l16 14V5" />
-          </svg>
-        </span>
+        <LogoMark size={40} className="shrink-0" />
         <div>
           <b className="block text-[17px] font-extrabold tracking-tight">NEXFLOW</b>
           <span className="block text-[11px] font-semibold tracking-wide text-[var(--muted)]">

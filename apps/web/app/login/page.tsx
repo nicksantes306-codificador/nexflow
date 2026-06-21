@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { login, signup, type AuthState } from "./actions";
+import { LogoMark } from "@/components/logo";
 
 const MARKETING = process.env.NEXT_PUBLIC_MARKETING_URL ?? "https://nexflow.com.br";
 
@@ -17,9 +18,7 @@ export default function LoginPage() {
     <main className="flex min-h-screen items-center justify-center bg-[var(--bg)] p-4">
       <div className="w-full max-w-sm rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--panel)] p-8 shadow-xl">
         <div className="mb-6 text-center">
-          <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-brand-600 font-mono text-lg font-extrabold text-white">
-            N
-          </div>
+          <LogoMark size={52} className="mx-auto" />
           <h1 className="mt-3 text-xl font-extrabold tracking-tight">NEXFLOW</h1>
           <p className="mt-1 text-sm text-[var(--muted)]">
             {mode === "login"
