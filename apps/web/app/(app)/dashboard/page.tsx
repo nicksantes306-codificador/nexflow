@@ -1,63 +1,31 @@
 import { createClient } from "@/lib/supabase/server";
-import { ESTAGIOS } from "@/lib/constants";
-import type { Lead } from "@/lib/types";
-import { DashboardClient, type DashData } from "./dashboard-client";
+import type { Lead, Project, FinanceEntry, Client } from "@/lib/types";
+import { montarDash } from "@/lib/dashboard";
+import { DashboardClient } from "./dashboard-client";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
 
-  // RLS filtra pelos leads do tenant logado.
-  const { data } = await supabase
-    .from("leads")
-    .select("*")
-    .order("valor", { ascending: false });
+  // RLS filtra tudo pelo tenant logado.
+  const [leadsRes, prjRes, finRes, cliRes] = await Promise.all([
+    supabase.from("leads").select("*").order("valor", { ascending: false }),
+    supabase.from("projects").select("*"),
+    supabase.from("finance_entries").select("*"),
+    supabase.from("clients").select("id,nome"),
+  ]);
 
-  const leads = (data ?? []) as Lead[];
-  const dash = montar(leads);
+  const clientes = (cliRes.data ?? []) as Pick<Client, "id" | "nome">[];
+  const clientesNome: Record<string, string> = {};
+  for (const c of clientes) clientesNome[c.id] = c.nome;
 
-  return <DashboardClient data={dash} />;
-}
-
-function montar(leads: Lead[]): DashData {
-  const emPipeline = leads.filter((l) =>
-    ESTAGIOS.includes(l.status as (typeof ESTAGIOS)[number]),
-  );
-  const ganhos = leads.filter((l) => l.status === "Aprovado");
-  const pipelineValor = emPipeline.reduce((a, l) => a + Number(l.valor || 0), 0);
-  const receitaGanha = ganhos.reduce((a, l) => a + Number(l.valor || 0), 0);
-  const oportunidades = emPipeline.length;
-  const conversao =
-    leads.length > 0 ? Math.round((ganhos.length / leads.length) * 100) : 0;
-
-  const funil = ESTAGIOS.map((stage) => {
-    const itens = leads.filter((l) => l.status === stage);
-    return {
-      label: stage,
-      count: itens.length,
-      valor: itens.reduce((a, l) => a + Number(l.valor || 0), 0),
-    };
+  const dash = montarDash({
+    leads: (leadsRes.data ?? []) as Lead[],
+    projects: (prjRes.data ?? []) as Project[],
+    finance: (finRes.data ?? []) as FinanceEntry[],
+    clientesNome,
   });
 
-  // Conta sem dados → mostra a demo para a tela não nascer vazia.
-  const vazio = leads.length === 0;
-
-  return {
-    demo: vazio,
-    pipelineValor: vazio ? 2_100_000 : pipelineValor,
-    receitaAcum: vazio ? 4_820_000 : receitaGanha + pipelineValor,
-    oportunidades: vazio ? 38 : oportunidades,
-    conversao: vazio ? 32 : conversao,
-    ganhos: vazio ? 27 : ganhos.length,
-    funil: vazio
-      ? [
-          { label: "Novo Lead", count: 42, valor: 3_800_000 },
-          { label: "Em contato", count: 28, valor: 2_900_000 },
-          { label: "Orçamento enviado", count: 19, valor: 2_300_000 },
-          { label: "Negociação", count: 14, valor: 1_900_000 },
-          { label: "Proposta", count: 9, valor: 1_400_000 },
-        ]
-      : funil,
-  };
+  return <DashboardClient data={dash} />;
 }

@@ -42,3 +42,36 @@ begin
   return 'OK — recarregue o app para ver o tenant Demo.';
 end;
 $$;
+
+-- ============================================================================
+-- Demo de Obras + Financeiro + Clientes (alimenta o Console Executivo).
+-- Datas relativas ao ano corrente para o gráfico de receita sempre ter dados.
+-- ============================================================================
+insert into public.clients (id, tenant_id, nome, cnpj, segmento) values
+ ('00000000-0000-0000-0000-0000000c1001','00000000-0000-0000-0000-0000000d300a','Gerdau S.A.','07.358.761/0001-30','Siderurgia'),
+ ('00000000-0000-0000-0000-0000000c1002','00000000-0000-0000-0000-0000000d300a','Tupy S.A.','84.683.374/0001-49','Fundição'),
+ ('00000000-0000-0000-0000-0000000c1003','00000000-0000-0000-0000-0000000d300a','Iochpe-Maxion S.A.','61.156.113/0001-75','Autopeças'),
+ ('00000000-0000-0000-0000-0000000c1004','00000000-0000-0000-0000-0000000d300a','Romi S.A.','56.720.428/0001-63','Máquinas'),
+ ('00000000-0000-0000-0000-0000000c1005','00000000-0000-0000-0000-0000000d300a','Schulz S.A.','84.693.183/0001-68','Compressores')
+on conflict (id) do nothing;
+
+insert into public.projects (id, tenant_id, client_id, nome, status, progresso, valor, custo_real, responsavel, inicio, fim) values
+ ('00000000-0000-0000-0000-0000000b1001','00000000-0000-0000-0000-0000000d300a','00000000-0000-0000-0000-0000000c1004','Automação Linha 2','Pausado',30,421000,198000,'João R.', make_date(extract(year from current_date)::int,3,3), make_date(extract(year from current_date)::int,9,30)),
+ ('00000000-0000-0000-0000-0000000b1002','00000000-0000-0000-0000-0000000d300a','00000000-0000-0000-0000-0000000c1002','Retrofit painéis CCM','Aguardando material',45,312000,121000,'Ana P.', make_date(extract(year from current_date)::int,4,10), make_date(extract(year from current_date)::int,8,20)),
+ ('00000000-0000-0000-0000-0000000b1003','00000000-0000-0000-0000-0000000d300a','00000000-0000-0000-0000-0000000c1001','Subestação 13,8 kV','Em andamento',78,248000,142000,'Carlos M.', make_date(extract(year from current_date)::int,2,17), make_date(extract(year from current_date)::int,7,15)),
+ ('00000000-0000-0000-0000-0000000b1004','00000000-0000-0000-0000-0000000d300a','00000000-0000-0000-0000-0000000c1003','SPDA + aterramento galpão 3','Em andamento',92,189000,151000,'Marina C.', make_date(extract(year from current_date)::int,1,20), make_date(extract(year from current_date)::int,6,28)),
+ ('00000000-0000-0000-0000-0000000b1005','00000000-0000-0000-0000-0000000d300a','00000000-0000-0000-0000-0000000c1005','QGBT 800A blindado','Em andamento',60,96000,52000,'Carlos M.', make_date(extract(year from current_date)::int,5,5), make_date(extract(year from current_date)::int,8,5)),
+ ('00000000-0000-0000-0000-0000000b1006','00000000-0000-0000-0000-0000000d300a','00000000-0000-0000-0000-0000000c1001','Laudo termográfico anual','Concluído',100,42000,28000,'Ana P.', make_date(extract(year from current_date)::int,1,8), make_date(extract(year from current_date)::int,2,2))
+on conflict (id) do nothing;
+
+insert into public.finance_entries (id, tenant_id, tipo, descricao, valor, status, data, categoria, cliente) values
+ ('00000000-0000-0000-0000-0000000f1001','00000000-0000-0000-0000-0000000d300a','Entrada','Medição 01 — Subestação Gerdau',285000,'Recebido', make_date(extract(year from current_date)::int,1,18),'Serviços','Gerdau S.A.'),
+ ('00000000-0000-0000-0000-0000000f1002','00000000-0000-0000-0000-0000000d300a','Entrada','Medição 02 — SPDA Iochpe',330000,'Recebido', make_date(extract(year from current_date)::int,2,15),'Serviços','Iochpe-Maxion S.A.'),
+ ('00000000-0000-0000-0000-0000000f1003','00000000-0000-0000-0000-0000000d300a','Entrada','Medição 03 — Retrofit Tupy',355000,'Recebido', make_date(extract(year from current_date)::int,3,14),'Serviços','Tupy S.A.'),
+ ('00000000-0000-0000-0000-0000000f1004','00000000-0000-0000-0000-0000000d300a','Entrada','Medição 04 — Subestação Gerdau',402000,'Recebido', make_date(extract(year from current_date)::int,4,22),'Serviços','Gerdau S.A.'),
+ ('00000000-0000-0000-0000-0000000f1005','00000000-0000-0000-0000-0000000d300a','Entrada','Medição 05 — Automação Romi',438000,'Recebido', make_date(extract(year from current_date)::int,5,19),'Serviços','Romi S.A.'),
+ ('00000000-0000-0000-0000-0000000f1006','00000000-0000-0000-0000-0000000d300a','Entrada','Medição 06 — QGBT Schulz',496000,'Recebido', make_date(extract(year from current_date)::int,6,10),'Serviços','Schulz S.A.'),
+ ('00000000-0000-0000-0000-0000000f1007','00000000-0000-0000-0000-0000000d300a','Entrada','Medição vencida — Romi',84000,'Atrasado', make_date(extract(year from current_date)::int,5,28),'Serviços','Romi S.A.'),
+ ('00000000-0000-0000-0000-0000000f1008','00000000-0000-0000-0000-0000000d300a','Entrada','Sinal de obra — Schulz',120000,'Pendente', make_date(extract(year from current_date)::int,6,25),'Serviços','Schulz S.A.'),
+ ('00000000-0000-0000-0000-0000000f1009','00000000-0000-0000-0000-0000000d300a','Saída','Compra de cabos e disjuntores',90000,'Pago', make_date(extract(year from current_date)::int,6,5),'Materiais','—')
+on conflict (id) do nothing;
