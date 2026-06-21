@@ -57,6 +57,9 @@ export default async function ProjetosPage() {
       <PageHeader
         title="Obras e Serviços"
         subtitle={`${emAndamento} em andamento de ${projetos.length} projetos`}
+        icon={
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M2 18a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-1H2z" /><path d="M10 9V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4" /><path d="M4 16v-3a6 6 0 0 1 6-6" /><path d="M14 7a6 6 0 0 1 6 6v3" /></svg>
+        }
         action={
           <QuickCreate action={criarProjeto} title="+ Nova obra" fields={campos} />
         }
