@@ -12,6 +12,7 @@
     "e2e": "playwright test"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.105.0",
     "@nexflow/core": "workspace:*",
     "@nexflow/db": "workspace:*",
     "@supabase/ssr": "^0.12.0",

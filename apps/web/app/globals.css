@@ -528,6 +528,11 @@ body {
 @keyframes nx-sh { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }
 @keyframes nx-skelout { to { opacity: 0; visibility: hidden; } }
 
+@keyframes nx-blink {
+  0%, 100% { opacity: 0.25; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-2px); }
+}
+
 @media (max-width: 1180px) {
   .nxdash .kpi { grid-column: span 6; }
   .nxdash .c-main { grid-column: span 12; }

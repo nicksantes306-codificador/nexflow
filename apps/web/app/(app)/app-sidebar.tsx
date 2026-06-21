@@ -132,9 +132,17 @@ export function AppSidebar({ email, plan }: { email: string; plan: string }) {
           Inteligência
         </p>
         <Link
-          href="/crm"
-          className="group relative mb-0.5 flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] font-semibold text-[var(--muted)] transition hover:bg-[var(--bg2)] hover:text-[var(--text)]"
+          href="/ai"
+          aria-current={isActive("ai") ? "page" : undefined}
+          className={`group relative mb-0.5 flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] font-semibold transition ${
+            isActive("ai")
+              ? "bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] text-[var(--accent)]"
+              : "text-[var(--muted)] hover:bg-[var(--bg2)] hover:text-[var(--text)]"
+          }`}
         >
+          {isActive("ai") && (
+            <span className="absolute -left-3 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r bg-[var(--accent)]" />
+          )}
           <span className="[&_.ic]:h-[18.5px] [&_.ic]:w-[18.5px]">{I.spark}</span>
           NEXFLOW AI
           <span className="ml-auto rounded-full bg-[color-mix(in_srgb,var(--accent-2)_14%,transparent)] px-2 py-0.5 text-[10px] font-bold text-[var(--accent-2)]">
