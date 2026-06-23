@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getEntitlements } from "@/lib/billing/entitlements";
 import { AppSidebar } from "./app-sidebar";
+import { CommandPalette } from "@/components/command-palette";
 
 export default async function AppLayout({
   children,
@@ -29,6 +30,7 @@ export default async function AppLayout({
         )}
         {children}
       </main>
+      <CommandPalette />
     </div>
   );
 }

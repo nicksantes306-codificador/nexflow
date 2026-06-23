@@ -127,6 +127,16 @@ export function AppSidebar({ email, plan }: { email: string; plan: string }) {
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
       </button>
 
+      <button
+        type="button"
+        onClick={() => window.dispatchEvent(new Event("nexflow-command"))}
+        className="mb-3 flex items-center gap-2.5 rounded-xl border border-[var(--border)] px-3 py-2 text-left text-[13px] text-[var(--muted)] transition hover:bg-[var(--bg2)] hover:text-[var(--text)]"
+      >
+        <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
+        Buscar…
+        <kbd className="ml-auto rounded-md border border-[var(--border)] px-1.5 py-0.5 text-[10px] font-semibold">⌘K</kbd>
+      </button>
+
       <nav className="flex-1 overflow-y-auto">
         <p className="px-3 pb-1.5 pt-2 text-[10.5px] font-bold uppercase tracking-wider text-[var(--muted)]">
           Principal
