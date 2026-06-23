@@ -533,6 +533,12 @@ body {
   50% { opacity: 1; transform: translateY(-2px); }
 }
 
+/* Impressão / PDF — esconde a casca, mostra só o conteúdo */
+@media print {
+  aside { display: none !important; }
+  .no-print { display: none !important; }
+}
+
 @media (max-width: 1180px) {
   .nxdash .kpi { grid-column: span 6; }
   .nxdash .c-main { grid-column: span 12; }
