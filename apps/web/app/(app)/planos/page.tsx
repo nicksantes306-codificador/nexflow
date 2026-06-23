@@ -38,10 +38,11 @@ export default async function PlanosPage() {
             <span className="font-semibold">{STATUS_LABEL[ent.status] ?? ent.status}</span>
           </>
         }
+        icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>}
       />
 
       {!iuguConfigured() && (
-        <p className="mb-4 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        <p className="mb-4 rounded-xl border border-[color-mix(in_srgb,var(--warn)_30%,transparent)] bg-[color-mix(in_srgb,var(--warn)_10%,transparent)] px-4 py-3 text-sm text-[var(--warn)]">
           <strong>Modo de configuração.</strong> O fluxo de cobrança está pronto;
           falta preencher as chaves da Iugu (sandbox) nos secrets para gerar PIX
           real. Assim que <code>IUGU_API_TOKEN</code> entrar, os botões abaixo
@@ -50,7 +51,7 @@ export default async function PlanosPage() {
       )}
 
       {ent.access === "readonly" && (
-        <p className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p className="mb-4 rounded-xl border border-[color-mix(in_srgb,var(--bad)_30%,transparent)] bg-[color-mix(in_srgb,var(--bad)_10%,transparent)] px-4 py-3 text-sm text-[var(--bad)]">
           Sua conta está em <strong>suspensão suave</strong> (somente leitura).
           Regularize o pagamento para reativar a edição.
         </p>
