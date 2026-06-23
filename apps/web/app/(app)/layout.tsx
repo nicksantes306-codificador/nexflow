@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getEntitlements } from "@/lib/billing/entitlements";
 import { AppSidebar } from "./app-sidebar";
 import { CommandPalette } from "@/components/command-palette";
+import { RouteTransition } from "@/components/route-transition";
+import { Toaster } from "@/components/toaster";
 
 export default async function AppLayout({
   children,
@@ -28,9 +30,10 @@ export default async function AppLayout({
             Cobrança.
           </div>
         )}
-        {children}
+        <RouteTransition>{children}</RouteTransition>
       </main>
       <CommandPalette />
+      <Toaster />
     </div>
   );
 }

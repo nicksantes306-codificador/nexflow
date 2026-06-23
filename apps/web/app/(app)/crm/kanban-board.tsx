@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import type { Lead } from "@/lib/types";
 import { ESTAGIOS, ESTAGIO_COR } from "@/lib/constants";
 import { money, moneyFull, dateBR, scoreBadgeColor } from "@/lib/format";
+import { toast } from "@/components/toaster";
 import { moveLead } from "./actions";
 
 function iniciais(nome: string | null): string {
@@ -49,6 +50,9 @@ export function KanbanBoard({ leads: inicial }: { leads: Lead[] }) {
       const res = await moveLead(id, status);
       if (res?.error) {
         setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, status: anterior } : l)));
+        toast("Não foi possível mover o lead", "erro");
+      } else {
+        toast(`Lead movido para ${status}`);
       }
     });
   }

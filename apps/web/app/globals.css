@@ -539,6 +539,31 @@ body {
   .no-print { display: none !important; }
 }
 
+/* Polish — transição de página, toasts e skeletons globais */
+.nx-route { animation: nx-routein 0.38s cubic-bezier(0.22, 0.61, 0.36, 1); }
+@keyframes nx-routein {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+.nx-toast { animation: nx-toastin 0.3s cubic-bezier(0.22, 0.61, 0.36, 1); }
+@keyframes nx-toastin {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+.nx-skelbar {
+  background: linear-gradient(
+    90deg,
+    var(--bg2) 25%,
+    color-mix(in srgb, var(--bg2) 55%, var(--border)) 37%,
+    var(--bg2) 63%
+  );
+  background-size: 400% 100%;
+  animation: nx-sh 1.4s ease infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nx-route, .nx-toast, .nx-skelbar { animation: none; }
+}
+
 @media (max-width: 1180px) {
   .nxdash .kpi { grid-column: span 6; }
   .nxdash .c-main { grid-column: span 12; }

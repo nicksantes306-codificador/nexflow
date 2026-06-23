@@ -4,6 +4,7 @@ import { useState, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { GATILHOS, ACOES } from "@/lib/automations/engine";
 import { TODOS_STATUS } from "@/lib/constants";
+import { toast } from "@/components/toaster";
 import { criarAutomacao } from "./actions";
 
 const inp =
@@ -31,6 +32,7 @@ export function Builder() {
         setGatilho("lead_created");
         setAcao("create_task");
         setAuto(true);
+        toast("Automação criada");
         router.refresh();
       }
     });
