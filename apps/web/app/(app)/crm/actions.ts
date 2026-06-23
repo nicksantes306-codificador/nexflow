@@ -4,10 +4,9 @@ import { revalidatePath } from "next/cache";
 import { computeScore } from "@nexflow/core";
 import { createClient } from "@/lib/supabase/server";
 import { TODOS_STATUS, type StatusLead } from "@/lib/constants";
+import { runAutomations } from "@/lib/automations/engine";
 
 // Move um lead de estágio (drag & drop do Kanban).
-// O RLS garante que só atualizamos leads do próprio tenant — não passamos
-// tenant_id no client; o banco resolve por current_tenant_id().
 export async function moveLead(leadId: string, novoStatus: string) {
   if (!TODOS_STATUS.includes(novoStatus as StatusLead)) {
     return { error: "Status inválido." };
@@ -19,6 +18,23 @@ export async function moveLead(leadId: string, novoStatus: string) {
     .eq("id", leadId);
 
   if (error) return { error: error.message };
+
+  // Dispara automações do gatilho "lead muda de estágio".
+  const { data: lead } = await supabase
+    .from("leads")
+    .select("cliente, empresa, valor")
+    .eq("id", leadId)
+    .maybeSingle();
+  const { data: tenant } = await supabase.rpc("current_tenant_id");
+  if (tenant && lead) {
+    await runAutomations(supabase, tenant, "lead_stage", novoStatus, {
+      cliente: lead.cliente,
+      empresa: lead.empresa,
+      valor: Number(lead.valor),
+      status: novoStatus,
+    });
+  }
+
   revalidatePath("/crm");
   return { ok: true };
 }
@@ -30,8 +46,6 @@ export async function createLead(formData: FormData) {
   if (!cliente) return { error: "Informe o nome do cliente." };
 
   const supabase = await createClient();
-
-  // tenant_id é obrigatório no insert; resolvemos pela membership ativa.
   const { data: tenant } = await supabase.rpc("current_tenant_id");
   if (!tenant) return { error: "Nenhum tenant ativo para este usuário." };
 
@@ -46,6 +60,14 @@ export async function createLead(formData: FormData) {
   });
 
   if (error) return { error: error.message };
+
+  // Dispara automações do gatilho "lead criado".
+  await runAutomations(supabase, tenant, "lead_created", null, {
+    cliente,
+    valor: valorOk,
+    status: "Novo Lead",
+  });
+
   revalidatePath("/crm");
   return { ok: true };
 }

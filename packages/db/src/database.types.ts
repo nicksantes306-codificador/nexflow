@@ -92,6 +92,10 @@ type EventsInsert = { id?: string; tenant_id: string; titulo: string; data: stri
 type AuditRow = { id: string; tenant_id: string; user_id: string | null; acao: string; entidade: string | null; alvo: string | null; detalhe: string | null; created_at: string };
 type AuditInsert = { id?: string; tenant_id: string; user_id?: string | null; acao: string; entidade?: string | null; alvo?: string | null; detalhe?: string | null; created_at?: string };
 
+// ── automations ──
+type AutomationsRow = { id: string; tenant_id: string; nome: string; gatilho: string; gatilho_valor: string | null; acao: string; acao_param: Json; ativo: boolean; exec_count: number; created_at: string };
+type AutomationsInsert = { id?: string; tenant_id: string; nome: string; gatilho: string; gatilho_valor?: string | null; acao: string; acao_param?: Json; ativo?: boolean; exec_count?: number; created_at?: string };
+
 type Table<R, I> = { Row: R; Insert: I; Update: Partial<I>; Relationships: [] };
 
 export interface Database {
@@ -114,6 +118,7 @@ export interface Database {
       tasks: Table<TasksRow, TasksInsert>;
       events: Table<EventsRow, EventsInsert>;
       audit_log: Table<AuditRow, AuditInsert>;
+      automations: Table<AutomationsRow, AutomationsInsert>;
     };
     Views: Record<string, never>;
     Functions: {
