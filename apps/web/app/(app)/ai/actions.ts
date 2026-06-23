@@ -10,7 +10,8 @@ export type IAResposta = { reply: string };
 export async function perguntar(history: ChatMsg[]): Promise<IAResposta> {
   const limpa = history
     .filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
-    .slice(-12); // mantém o contexto curto e barato
+    .slice(-12) // mantém o contexto curto e barato
+    .map((m) => ({ role: m.role, content: m.content.slice(0, 4000) })); // teto por mensagem
 
   if (limpa.length === 0 || limpa[limpa.length - 1].role !== "user") {
     return { reply: "Faça uma pergunta sobre seu funil, financeiro, obras ou prioridades do dia." };

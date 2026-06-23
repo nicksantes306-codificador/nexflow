@@ -77,14 +77,15 @@ export default async function FinanceiroPage() {
         }
       />
 
-      <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <KpiCard label="Recebido" value={moneyFull(recebido)} tone="green" />
-        <KpiCard label="A receber" value={moneyFull(aReceber)} tone="amber" />
-        <KpiCard label="Saídas pagas" value={moneyFull(pago)} tone="red" />
+      <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <KpiCard label="Recebido" value={moneyFull(recebido)} tone="green" icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>} />
+        <KpiCard label="A receber" value={moneyFull(aReceber)} tone="amber" icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>} />
+        <KpiCard label="Saídas pagas" value={moneyFull(pago)} tone="red" icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7l6 6 4-4 8 8" /><path d="M21 17v-4h-4" /></svg>} />
         <KpiCard
           label="Saldo de caixa"
           value={moneyFull(saldo)}
           tone={saldo >= 0 ? "green" : "red"}
+          icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" /><path d="M3 5v14a2 2 0 0 0 2 2h16v-5" /><path d="M18 12a2 2 0 0 0 0 4h4v-4z" /></svg>}
           hint="recebido − pago"
         />
       </div>

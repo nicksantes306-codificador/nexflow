@@ -7,6 +7,43 @@ import { criarProjeto } from "./actions";
 
 export const dynamic = "force-dynamic";
 
+const I = {
+  hat: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M2 18a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-1H2z" /><path d="M10 9V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4" /><path d="M4 16v-3a6 6 0 0 1 6-6" /><path d="M14 7a6 6 0 0 1 6 6v3" /></svg>,
+  wallet: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" /><path d="M3 5v14a2 2 0 0 0 2 2h16v-5" /><path d="M18 12a2 2 0 0 0 0 4h4v-4z" /></svg>,
+  down: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7l6 6 4-4 8 8" /><path d="M21 17v-4h-4" /></svg>,
+  pct: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M19 5 5 19" /><circle cx="6.5" cy="6.5" r="2.5" /><circle cx="17.5" cy="17.5" r="2.5" /></svg>,
+};
+
+const STATUS_COR: Record<string, string> = {
+  "Em andamento": "var(--accent)",
+  "Aguardando material": "var(--warn)",
+  Pausado: "var(--bad)",
+  Concluído: "var(--ok)",
+};
+
+function StatusObra({ s }: { s: string }) {
+  const c = STATUS_COR[s] ?? "var(--muted)";
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold" style={{ color: c, background: `color-mix(in srgb, ${c} 14%, transparent)` }}>
+      <span className="h-1.5 w-1.5 rounded-full" style={{ background: c }} />
+      {s}
+    </span>
+  );
+}
+
+function Progresso({ pc }: { pc: number }) {
+  const v = Math.max(0, Math.min(100, Math.round(pc)));
+  const grad = v >= 85 ? "linear-gradient(90deg,#0e9f6e,var(--ok))" : v < 50 ? "linear-gradient(90deg,#b45309,var(--warn))" : "linear-gradient(90deg,var(--accent),var(--accent-2))";
+  return (
+    <div className="flex items-center gap-2.5">
+      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--bg2)]">
+        <div className="h-full rounded-full" style={{ width: `${v}%`, background: grad }} />
+      </div>
+      <span className="w-9 text-right text-[11px] font-bold" style={{ fontVariantNumeric: "tabular-nums" }}>{v}%</span>
+    </div>
+  );
+}
+
 export default async function ProjetosPage() {
   const supabase = await createClient();
   const [{ data: prj }, { data: cli }] = await Promise.all([
@@ -21,29 +58,12 @@ export default async function ProjetosPage() {
   const custo = projetos.reduce((a, p) => a + Number(p.custo_real), 0);
   const margem = carteira - custo;
   const emAndamento = projetos.filter((p) => p.status !== "Concluído").length;
+  const margemPct = carteira > 0 ? Math.round((margem / carteira) * 100) : 0;
 
   const campos: Field[] = [
     { name: "nome", label: "Obra / projeto", required: true, placeholder: "Painel CCM — WEG" },
-    {
-      name: "client_id",
-      label: "Cliente",
-      type: "select",
-      options: [
-        { value: "", label: "— Sem cliente —" },
-        ...clientes.map((c) => ({ value: c.id, label: c.nome })),
-      ],
-    },
-    {
-      name: "status",
-      label: "Status",
-      type: "select",
-      options: [
-        { value: "Em andamento", label: "Em andamento" },
-        { value: "Aguardando material", label: "Aguardando material" },
-        { value: "Pausado", label: "Pausado" },
-        { value: "Concluído", label: "Concluído" },
-      ],
-    },
+    { name: "client_id", label: "Cliente", type: "select", options: [{ value: "", label: "— Sem cliente —" }, ...clientes.map((c) => ({ value: c.id, label: c.nome }))] },
+    { name: "status", label: "Status", type: "select", options: [{ value: "Em andamento", label: "Em andamento" }, { value: "Aguardando material", label: "Aguardando material" }, { value: "Pausado", label: "Pausado" }, { value: "Concluído", label: "Concluído" }] },
     { name: "valor", label: "Valor do contrato (R$)", type: "number" },
     { name: "custo_real", label: "Custo real (R$)", type: "number" },
     { name: "progresso", label: "Progresso (%)", type: "number" },
@@ -57,23 +77,15 @@ export default async function ProjetosPage() {
       <PageHeader
         title="Obras e Serviços"
         subtitle={`${emAndamento} em andamento de ${projetos.length} projetos`}
-        icon={
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M2 18a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-1H2z" /><path d="M10 9V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4" /><path d="M4 16v-3a6 6 0 0 1 6-6" /><path d="M14 7a6 6 0 0 1 6 6v3" /></svg>
-        }
-        action={
-          <QuickCreate action={criarProjeto} title="+ Nova obra" fields={campos} />
-        }
+        icon={I.hat}
+        action={<QuickCreate action={criarProjeto} title="+ Nova obra" fields={campos} />}
       />
 
-      <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-3">
-        <KpiCard label="Carteira (contratos)" value={moneyFull(carteira)} />
-        <KpiCard label="Custo realizado" value={moneyFull(custo)} tone="red" />
-        <KpiCard
-          label="Margem"
-          value={moneyFull(margem)}
-          tone={margem >= 0 ? "green" : "red"}
-          hint="carteira − custo"
-        />
+      <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <KpiCard label="Obras em andamento" value={String(emAndamento)} icon={I.hat} />
+        <KpiCard label="Carteira (contratos)" value={moneyFull(carteira)} icon={I.wallet} />
+        <KpiCard label="Custo realizado" value={moneyFull(custo)} tone="red" icon={I.down} />
+        <KpiCard label="Margem" value={moneyFull(margem)} tone={margem >= 0 ? "green" : "red"} hint={`${margemPct}% da carteira`} icon={I.pct} />
       </div>
 
       {projetos.length === 0 ? (
@@ -82,37 +94,23 @@ export default async function ProjetosPage() {
         <TableShell
           head={
             <tr>
-              <th className="px-4 py-2.5">Obra</th>
-              <th className="px-4 py-2.5">Cliente</th>
-              <th className="px-4 py-2.5">Status</th>
-              <th className="px-4 py-2.5 w-40">Progresso</th>
-              <th className="px-4 py-2.5">Término</th>
-              <th className="px-4 py-2.5 text-right">Valor</th>
+              <th className="px-4 py-3">Obra</th>
+              <th className="px-4 py-3">Cliente</th>
+              <th className="px-4 py-3">Status</th>
+              <th className="w-44 px-4 py-3">Progresso</th>
+              <th className="px-4 py-3">Término</th>
+              <th className="px-4 py-3 text-right">Valor</th>
             </tr>
           }
         >
           {projetos.map((p) => (
-            <tr key={p.id} className="hover:bg-[var(--bg2)]">
-              <td className="px-4 py-2.5 font-semibold">{p.nome}</td>
-              <td className="px-4 py-2.5">
-                {p.client_id ? (nomePorId.get(p.client_id) ?? "—") : "—"}
-              </td>
-              <td className="px-4 py-2.5 text-[var(--muted)]">{p.status}</td>
-              <td className="px-4 py-2.5">
-                <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--bg2)]">
-                  <div
-                    className="h-full rounded-full bg-brand-600"
-                    style={{ width: `${p.progresso}%` }}
-                  />
-                </div>
-                <span className="mt-0.5 block text-[10px] text-[var(--muted)]">
-                  {p.progresso}%
-                </span>
-              </td>
-              <td className="px-4 py-2.5 text-[var(--muted)]">{dateBR(p.fim)}</td>
-              <td className="px-4 py-2.5 text-right font-mono font-bold text-brand-600">
-                {moneyFull(Number(p.valor))}
-              </td>
+            <tr key={p.id} className="transition hover:bg-[var(--bg2)]">
+              <td className="px-4 py-3 font-semibold">{p.nome}</td>
+              <td className="px-4 py-3 text-[var(--muted)]">{p.client_id ? (nomePorId.get(p.client_id) ?? "—") : "—"}</td>
+              <td className="px-4 py-3"><StatusObra s={p.status} /></td>
+              <td className="px-4 py-3"><Progresso pc={Number(p.progresso)} /></td>
+              <td className="px-4 py-3 text-[var(--muted)]">{dateBR(p.fim)}</td>
+              <td className="px-4 py-3 text-right font-bold text-[var(--accent)]" style={{ fontVariantNumeric: "tabular-nums" }}>{moneyFull(Number(p.valor))}</td>
             </tr>
           ))}
         </TableShell>
