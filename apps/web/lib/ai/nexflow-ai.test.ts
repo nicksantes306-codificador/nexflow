@@ -25,7 +25,7 @@ const d: DashData = {
 describe("nexflowLocalAI", () => {
   it("responde sobre pipeline com números reais", () => {
     const r = nexflowLocalAI("resumir meu pipeline", d);
-    expect(r).toContain("oportunidades");
+    expect(r).toContain("negócios em aberto");
     expect(r).toContain("850 mil");
   });
 
@@ -37,7 +37,7 @@ describe("nexflowLocalAI", () => {
 
   it("responde sobre obras e cita as críticas", () => {
     const r = nexflowLocalAI("riscos das obras", d);
-    expect(r).toContain("críticas");
+    expect(r).toContain("precisam de atenção");
     expect(r).toContain("Automação Linha 2");
   });
 
@@ -46,8 +46,8 @@ describe("nexflowLocalAI", () => {
     expect(r).toContain("20%");
   });
 
-  it("dá um panorama no fallback / saudação", () => {
+  it("dá um resumo no fallback / saudação", () => {
     const r = nexflowLocalAI("olá", d);
-    expect(r).toContain("Panorama");
+    expect(r).toContain("Resumo da empresa");
   });
 });

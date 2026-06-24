@@ -40,6 +40,7 @@ export function snapshot(d: DashData): string {
 const SISTEMA = `Você é a NEXFLOW AI, assistente do NEXFLOW — um CRM/ERP para empresas de engenharia elétrica e automação industrial.
 Responda SEMPRE em português do Brasil, de forma curta, objetiva e prática (no máximo ~120 palavras, salvo se pedirem detalhe).
 Use SOMENTE os números dos "DADOS DO PAINEL" abaixo quando citar valores — nunca invente cifras.
+Use linguagem simples e direta, como quem explica para o dono de uma empresa de engenharia de 50 anos: evite jargão técnico e termos em inglês (diga "negócio em aberto" em vez de "lead", "faturamento" em vez de "receita", "fechamento" em vez de "conversão"). Pode usar termos de engenharia (ART, SPDA, subestação).
 Quando fizer sentido, termine com uma sugestão de próxima ação começando por "Sugestão:".
 Quando listar itens, use marcadores com "- ".`;
 
@@ -71,33 +72,33 @@ export function nexflowLocalAI(perguntaRaw: string, d: DashData): string {
   const q = norm(perguntaRaw);
   const has = (...ks: string[]) => ks.some((k) => q.includes(k));
 
-  if (has("pipeline", "funil", "oportunid", "etapa")) {
+  if (has("pipeline", "funil", "oportunid", "etapa", "venda")) {
     const maior = [...d.funil].sort((a, b) => b.count - a.count)[0];
     const linhas = d.funil.map((f) => `- ${f.label}: ${f.count} (${brl(f.valor)})`).join("\n");
-    return `Seu funil tem ${d.oportunidades} oportunidades abertas, somando ${brl(d.pipelineValor)} em pipeline.\n${linhas}\nA etapa mais cheia é "${maior?.label}".\nSugestão: priorize avançar as propostas e negociações, onde o ciclo de fechamento é mais curto.`;
+    return `Você tem ${d.oportunidades} negócios em aberto, somando ${brl(d.pipelineValor)} em negociação.\n${linhas}\nA etapa com mais clientes é ${maior?.label}.\nSugestão: dê atenção às propostas e negociações — são as que fecham mais rápido.`;
   }
-  if (has("receita", "financ", "fatur", "caixa", "previs")) {
-    const dir = d.receitaMesDeltaPct >= 0 ? "alta" : "queda";
-    return `Receita acumulada: ${brl(d.receitaAcum)}. No mês: ${brl(d.receitaMes)} (${dir} de ${Math.abs(d.receitaMesDeltaPct)}% vs. mês anterior).\nPipeline ativo: ${brl(d.pipelineValor)} em ${d.oportunidades} oportunidades.\nSugestão: acompanhe os recebíveis atrasados nos alertas para proteger o caixa.`;
+  if (has("receita", "financ", "fatur", "caixa", "previs", "dinheiro")) {
+    const dir = d.receitaMesDeltaPct >= 0 ? "subiu" : "caiu";
+    return `Faturamento no ano: ${brl(d.receitaAcum)}. Neste mês: ${brl(d.receitaMes)} (${dir} ${Math.abs(d.receitaMesDeltaPct)}% em relação ao mês passado).\nEm negociação: ${brl(d.pipelineValor)} em ${d.oportunidades} negócios.\nSugestão: fique de olho nas contas atrasadas (nos avisos) para proteger o caixa.`;
   }
-  if (has("obra", "risco", "atras", "medic", "campo", "equipe")) {
+  if (has("obra", "risco", "atras", "medic", "campo", "equipe", "problema")) {
     const criticas = d.obras.filter((o) => o.pc < 50);
     const linhas = (criticas.length ? criticas : d.obras)
       .map((o) => `- ${o.nome} (${o.pc}%) · ${o.cli}`)
       .join("\n");
     const al = d.alertas.filter((a) => a.cls !== "info").map((a) => `- ${a.txt}`).join("\n");
-    return `Você tem ${d.obrasAtivas} obras ativas, sendo ${d.obrasCriticas} críticas.\nAtenção:\n${linhas}${al ? `\nAlertas:\n${al}` : ""}\nSugestão: realoque equipe para as obras abaixo de 50% e destrave as que aguardam material.`;
+    return `Você tem ${d.obrasAtivas} obras em andamento, sendo ${d.obrasCriticas} que precisam de atenção.\nPara olhar de perto:\n${linhas}${al ? `\nAvisos:\n${al}` : ""}\nSugestão: mande equipe para as obras abaixo de 50% e destrave as que esperam material.`;
   }
   if (has("convers", "taxa", "fech", "ganho")) {
-    return `Sua taxa de conversão (lead → ganho) está em ${d.conversao}%.\nCom ${d.oportunidades} oportunidades abertas (${brl(d.pipelineValor)}), cada ponto de conversão vale bastante.\nSugestão: foque follow-up nas etapas Proposta e Negociação para subir a conversão.`;
+    return `Sua taxa de fechamento está em ${d.conversao}% — de cada 100 clientes em potencial, ${d.conversao} viram negócio.\nVocê tem ${d.oportunidades} negócios em aberto (${brl(d.pipelineValor)}).\nSugestão: dê atenção às propostas e negociações para fechar mais.`;
   }
-  if (has("prioriz", "quente", "foco", "vender", "onde", "lead", "acao", "proxim")) {
+  if (has("prioriz", "quente", "foco", "vender", "onde", "lead", "acao", "proxim", "hoje")) {
     const al = d.alertas[0];
-    return `Para hoje, foque em 3 frentes:\n- Comercial: avançar as oportunidades em Proposta/Negociação (${brl(d.pipelineValor)} no pipeline).\n- Caixa: tratar recebíveis em aberto/atrasados.\n- Obras: as ${d.obrasCriticas} obras críticas.\n${al ? `Alerta nº1: ${al.txt}.\n` : ""}Sugestão: comece pelo alerta mais urgente e por uma proposta perto do fechamento.`;
+    return `Para hoje, foque em 3 frentes:\n- Vendas: avançar os negócios em proposta e negociação (${brl(d.pipelineValor)} em jogo).\n- Caixa: resolver as contas a receber em aberto ou atrasadas.\n- Obras: as ${d.obrasCriticas} que precisam de atenção.\n${al ? `Aviso mais urgente: ${al.txt}.\n` : ""}Sugestão: comece pelo aviso mais urgente e por uma venda perto de fechar.`;
   }
 
-  // Resumo executivo (default / saudação)
-  return `Panorama da empresa agora:\n- Receita acumulada: ${brl(d.receitaAcum)} (mês: ${brl(d.receitaMes)})\n- Pipeline: ${brl(d.pipelineValor)} em ${d.oportunidades} oportunidades · conversão ${d.conversao}%\n- Obras: ${d.obrasAtivas} ativas (${d.obrasCriticas} críticas)\n- Alertas: ${d.alertas.length} pendência(s)\nPergunte sobre "funil", "financeiro", "obras", "conversão" ou "o que priorizar".`;
+  // Resumo (default / saudação)
+  return `Resumo da empresa agora:\n- Faturamento no ano: ${brl(d.receitaAcum)} (neste mês: ${brl(d.receitaMes)})\n- Em negociação: ${brl(d.pipelineValor)} em ${d.oportunidades} negócios · fechamento ${d.conversao}%\n- Obras: ${d.obrasAtivas} em andamento (${d.obrasCriticas} precisam de atenção)\n- Avisos: ${d.alertas.length}\nVocê pode me perguntar sobre vendas, financeiro, obras ou o que fazer hoje.`;
 }
 
 // ── Ponto de entrada único ────────────────────────────────────────────────────
