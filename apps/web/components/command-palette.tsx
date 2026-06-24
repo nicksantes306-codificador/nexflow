@@ -16,6 +16,7 @@ const NAV = [
   { label: "Agenda", href: "/agenda", kw: "eventos calendario" },
   { label: "Automações", href: "/automacoes", kw: "regras gatilho" },
   { label: "NEXFLOW AI", href: "/ai", kw: "assistente ia chat" },
+  { label: "Equipe", href: "/equipe", kw: "membros convidar usuarios" },
   { label: "Minha empresa", href: "/empresa", kw: "cnpj dados" },
   { label: "Planos & Cobrança", href: "/planos", kw: "assinatura fatura" },
   { label: "Importar dados", href: "/importar", kw: "migrar" },

@@ -24,6 +24,7 @@ export async function criarCliente(
     contato: emptyToNull(formData.get("contato")),
     telefone: emptyToNull(formData.get("telefone")),
     email: emptyToNull(formData.get("email")),
+    endereco: emptyToNull(formData.get("endereco")),
   });
 
   if (error) return { error: error.message };

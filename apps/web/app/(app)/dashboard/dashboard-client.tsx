@@ -2,8 +2,21 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { money } from "@/lib/format";
 import type { DashData, RevSerie } from "@/lib/dashboard";
+
+const PERIODOS = [
+  { id: "hoje", label: "Hoje" },
+  { id: "semana", label: "Semana" },
+  { id: "mes", label: "Mês" },
+  { id: "trimestre", label: "Trimestre" },
+  { id: "ano", label: "Ano" },
+];
+
+function abrirBusca() {
+  window.dispatchEvent(new Event("nexflow-command"));
+}
 
 /* ---------- formatadores ---------- */
 function brCompact(n: number): string {
@@ -125,7 +138,8 @@ const ICON = {
   conv: <svg className="ic" viewBox="0 0 24 24"><path d="M22 12A10 10 0 1 1 12 2" /><path d="M22 4 12 14l-3-3" /></svg>,
 };
 
-export function DashboardClient({ data }: { data: DashData }) {
+export function DashboardClient({ data, periodo }: { data: DashData; periodo: string }) {
+  const router = useRouter();
   const [clock, setClock] = useState("—");
   useEffect(() => {
     const upd = () => {
@@ -147,7 +161,7 @@ export function DashboardClient({ data }: { data: DashData }) {
     icon: React.ReactNode; sub: string; delta?: { v: string; up: boolean };
   };
   const KPIS: Kpi[] = [
-    { label: "Faturamento no ano", value: data.receitaAcum, format: brCompact, icon: ICON.receita, sub: "total já recebido", delta: data.demo ? { v: "18,4%", up: true } : undefined },
+    { label: "Faturamento no período", value: data.receitaAcum, format: brCompact, icon: ICON.receita, sub: "recebido no período", delta: data.demo ? { v: "18,4%", up: true } : undefined },
     { label: "Faturamento do mês", value: data.receitaMes, format: brCompact, icon: ICON.mes, sub: "este mês", delta: mesDelta !== 0 ? { v: (mesDelta > 0 ? "+" : "") + mesDelta + "%", up: mesDelta >= 0 } : data.demo ? { v: "6,2%", up: true } : undefined },
     { label: "Obras ativas", value: data.obrasAtivas, format: (n) => String(Math.round(n)), icon: ICON.obra, sub: `${data.obrasCriticas} precisam de atenção`, delta: data.demo ? { v: "+3", up: true } : undefined },
     { label: "Taxa de fechamento", value: data.conversao, format: (n) => Math.round(n) + "%", icon: ICON.conv, sub: "leads que viraram negócio", delta: data.demo ? { v: "+4 p.p.", up: true } : undefined },
@@ -173,16 +187,12 @@ export function DashboardClient({ data }: { data: DashData }) {
           <h1>Painel<span className="live"><span className="dot" />AO VIVO</span></h1>
           <p className="sub" suppressHydrationWarning>{clock}</p>
         </div>
-        <label className="search">
+        <label className="search" onClick={abrirBusca} style={{ cursor: "pointer" }}>
           <svg className="ic" viewBox="0 0 24 24" style={{ width: 17, height: 17 }}><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
-          <input placeholder="Procurar obras, clientes…" />
+          <input readOnly placeholder="Procurar obras, clientes…" style={{ cursor: "pointer" }} onClick={abrirBusca} />
           <kbd>⌘K</kbd>
         </label>
-        <button className="iconbtn" aria-label="Notificações">
-          <svg className="ic" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>
-          <span className="nt" />
-        </button>
-        <button className="ai-btn">
+        <button className="ai-btn" onClick={() => router.push("/ai")}>
           <svg className="ic" viewBox="0 0 24 24"><path d="M12 3l1.9 5.6L19.5 10l-5.6 1.4L12 17l-1.9-5.6L4.5 10l5.6-1.4z" /></svg>
           Perguntar ao assistente
         </button>
@@ -198,7 +208,9 @@ export function DashboardClient({ data }: { data: DashData }) {
             </p>
           </div>
           <div className="seg">
-            <button>Hoje</button><button>Semana</button><button className="on">Mês</button><button>Trimestre</button><button>Ano</button>
+            {PERIODOS.map((p) => (
+              <button key={p.id} className={periodo === p.id ? "on" : ""} onClick={() => router.push(`/dashboard?periodo=${p.id}`)}>{p.label}</button>
+            ))}
           </div>
         </div>
 

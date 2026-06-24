@@ -33,8 +33,12 @@ type ProfilesRow = { id: string; full_name: string | null; email: string | null;
 type ProfilesInsert = { id: string; full_name?: string | null; email?: string | null; avatar_url?: string | null; created_at?: string; updated_at?: string };
 
 // ── memberships ──
-type MembershipsRow = { id: string; tenant_id: string; user_id: string; role: Role; created_at: string };
-type MembershipsInsert = { id?: string; tenant_id: string; user_id: string; role?: Role; created_at?: string };
+type MembershipsRow = { id: string; tenant_id: string; user_id: string; role: Role; email: string | null; created_at: string };
+type MembershipsInsert = { id?: string; tenant_id: string; user_id: string; role?: Role; email?: string | null; created_at?: string };
+
+// ── invites ──
+type InvitesRow = { id: string; tenant_id: string; email: string; role: Role; used_at: string | null; created_at: string };
+type InvitesInsert = { id?: string; tenant_id: string; email: string; role?: Role; used_at?: string | null; created_at?: string };
 
 // ── subscriptions ──
 type SubscriptionsRow = { id: string; tenant_id: string; plan: Plan; status: SubStatus; gateway: string; gateway_subscription_id: string | null; current_period_end: string | null; grace_until: string | null; created_at: string; updated_at: string };
@@ -119,6 +123,7 @@ export interface Database {
       events: Table<EventsRow, EventsInsert>;
       audit_log: Table<AuditRow, AuditInsert>;
       automations: Table<AutomationsRow, AutomationsInsert>;
+      invites: Table<InvitesRow, InvitesInsert>;
     };
     Views: Record<string, never>;
     Functions: {

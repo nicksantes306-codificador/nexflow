@@ -1,20 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Client } from "@/lib/types";
 import { PageHeader, KpiCard, EmptyHint } from "@/components/ui";
-import { QuickCreate, type Field } from "@/components/quick-create";
-import { criarCliente } from "./actions";
 import { ClientCard } from "./client-card";
+import { NewClientForm } from "./new-client";
 
 export const dynamic = "force-dynamic";
-
-const CAMPOS: Field[] = [
-  { name: "nome", label: "Nome / Razão social", required: true, placeholder: "Indústria Acme Ltda" },
-  { name: "cnpj", label: "CNPJ", placeholder: "00.000.000/0001-00" },
-  { name: "segmento", label: "Segmento", placeholder: "Metalurgia" },
-  { name: "contato", label: "Contato", placeholder: "Eng. responsável" },
-  { name: "telefone", label: "Telefone", placeholder: "(11) 90000-0000" },
-  { name: "email", label: "E-mail", type: "email", placeholder: "compras@acme.com.br" },
-];
 
 const I = {
   users: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>,
@@ -38,7 +28,7 @@ export default async function ClientesPage() {
         title="Clientes 360°"
         subtitle={`${clientes.length} ${clientes.length === 1 ? "cliente cadastrado" : "clientes cadastrados"}`}
         icon={I.users}
-        action={<QuickCreate action={criarCliente} title="+ Novo cliente" fields={CAMPOS} />}
+        action={<NewClientForm />}
       />
 
       {clientes.length > 0 && (

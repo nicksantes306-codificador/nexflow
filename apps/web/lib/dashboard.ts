@@ -47,6 +47,7 @@ export type DashInput = {
   finance: FinanceEntry[];
   clientesNome: Record<string, string>;
   now?: Date;
+  desde?: Date | null;
 };
 
 const MESES = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
@@ -132,11 +133,16 @@ const DEMO_FUNIL: FunilEtapa[] = [
 ];
 
 export function montarDash(input: DashInput): DashData {
-  const { leads, projects, finance, clientesNome } = input;
+  const { leads: leadsAll, projects, finance, clientesNome } = input;
   const now = input.now ?? new Date();
-  const vazio = leads.length === 0 && projects.length === 0 && finance.length === 0;
+  const vazio = leadsAll.length === 0 && projects.length === 0 && finance.length === 0;
 
-  /* ----- comercial (leads) ----- */
+  // Escalas do painel (hoje/semana/mês/trimestre/ano). Sem desde = tudo.
+  const desdeISO = input.desde ? input.desde.toISOString().slice(0, 10) : null;
+  const leads = desdeISO ? leadsAll.filter((l) => l.ultimo != null && String(l.ultimo) >= desdeISO) : leadsAll;
+  const noPeriodo = (data: string | null) => !desdeISO || (data != null && String(data) >= desdeISO);
+
+  /* ----- comercial (leads, já no período) ----- */
   const emPipeline = leads.filter((l) => ESTAGIOS.includes(l.status as (typeof ESTAGIOS)[number]));
   const ganhos = leads.filter((l) => l.status === "Aprovado");
   const pipelineValor = emPipeline.reduce((a, l) => a + Number(l.valor || 0), 0);
@@ -146,9 +152,9 @@ export function montarDash(input: DashInput): DashData {
     return { label: stage, count: itens.length, valor: itens.reduce((a, l) => a + Number(l.valor || 0), 0) };
   });
 
-  /* ----- financeiro ----- */
+  /* ----- financeiro (recebido respeita o período) ----- */
   const recebido = finance
-    .filter((e) => e.tipo === "Entrada" && e.status === "Recebido")
+    .filter((e) => e.tipo === "Entrada" && e.status === "Recebido" && noPeriodo(e.data))
     .reduce((a, e) => a + Number(e.valor || 0), 0);
   const mesRecebido = (offset: number) => {
     const ref = new Date(now.getFullYear(), now.getMonth() - offset, 1);
@@ -213,18 +219,18 @@ export function montarDash(input: DashInput): DashData {
 
   return {
     demo: vazio,
-    receitaAcum: recebido > 0 ? recebido : 4_820_000,
-    receitaMes: finance.length ? receitaMes : 612_000,
-    receitaMesDeltaPct: finance.length ? receitaMesDeltaPct : 6,
-    pipelineValor: leads.length ? pipelineValor : 2_100_000,
-    oportunidades: leads.length ? emPipeline.length : 38,
-    conversao: leads.length ? conversao : 32,
-    obrasAtivas: projects.length ? ativas.length : 14,
-    funil: leads.length ? funilReal : DEMO_FUNIL,
-    obras: obrasReais.length ? obrasReais : DEMO_OBRAS,
-    obrasCriticas: projects.length ? obrasCriticas : 4,
-    responsaveis: respReais.length ? respReais : DEMO_RESP,
-    alertas: alertas.length ? alertas.slice(0, 4) : DEMO_ALERTAS,
+    receitaAcum: vazio ? 4_820_000 : recebido,
+    receitaMes: vazio ? 612_000 : receitaMes,
+    receitaMesDeltaPct: vazio ? 6 : receitaMesDeltaPct,
+    pipelineValor: vazio ? 2_100_000 : pipelineValor,
+    oportunidades: vazio ? 38 : emPipeline.length,
+    conversao: vazio ? 32 : conversao,
+    obrasAtivas: vazio ? 14 : ativas.length,
+    funil: vazio ? DEMO_FUNIL : funilReal,
+    obras: obrasReais.length ? obrasReais : vazio ? DEMO_OBRAS : obrasReais,
+    obrasCriticas: vazio ? 4 : obrasCriticas,
+    responsaveis: respReais.length ? respReais : vazio ? DEMO_RESP : respReais,
+    alertas: alertas.length ? alertas.slice(0, 4) : vazio ? DEMO_ALERTAS : alertas,
     rev: revReal ?? DEMO_REV,
   };
 }

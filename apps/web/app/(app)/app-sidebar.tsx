@@ -69,6 +69,7 @@ const PRINCIPAL: Item[] = [
 ];
 
 const CONTA: Item[] = [
+  { id: "equipe", label: "Equipe", icon: I.users, desc: "Convide e gerencie as pessoas da sua empresa" },
   { id: "empresa", label: "Minha empresa", icon: I.building, desc: "Dados da sua empresa (CNPJ, endereço…)" },
   { id: "planos", label: "Plano e pagamento", icon: I.card, desc: "Sua assinatura e faturas" },
   { id: "importar", label: "Importar dados", icon: I.upload, desc: "Trazer dados de uma planilha ou do sistema antigo" },
