@@ -1,6 +1,0 @@
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "turbo run build --filter=@nexflow/web...",
-  "outputDirectory": "apps/web/.next",
-  "installCommand": "pnpm install"
-}
