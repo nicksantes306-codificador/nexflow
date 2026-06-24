@@ -6,7 +6,7 @@ import { logout } from "@/app/login/actions";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LogoMark } from "@/components/logo";
 
-type Item = { id: string; label: string; icon: React.ReactNode; tag?: string };
+type Item = { id: string; label: string; icon: React.ReactNode; tag?: string; desc?: string };
 
 const I = {
   dash: (
@@ -57,21 +57,21 @@ const I = {
 };
 
 const PRINCIPAL: Item[] = [
-  { id: "dashboard", label: "Dashboard", icon: I.dash },
-  { id: "crm", label: "CRM / Vendas", icon: I.crm },
-  { id: "clientes", label: "Clientes 360°", icon: I.users },
-  { id: "orcamentos", label: "Orçamentos", icon: I.file },
-  { id: "projetos", label: "Obras e Serviços", icon: I.hardhat },
-  { id: "financeiro", label: "Financeiro", icon: I.wallet },
-  { id: "relatorios", label: "Relatórios", icon: I.chart },
-  { id: "tarefas", label: "Tarefas", icon: I.check },
-  { id: "agenda", label: "Agenda", icon: I.cal },
+  { id: "dashboard", label: "Painel", icon: I.dash, desc: "Visão geral do seu negócio num lugar só" },
+  { id: "crm", label: "Vendas", icon: I.crm, desc: "Acompanhe os clientes em potencial até fechar negócio" },
+  { id: "clientes", label: "Clientes", icon: I.users, desc: "Cadastro, contatos e histórico dos seus clientes" },
+  { id: "orcamentos", label: "Orçamentos", icon: I.file, desc: "Faça propostas e orçamentos para os clientes" },
+  { id: "projetos", label: "Obras", icon: I.hardhat, desc: "Acompanhe o andamento das obras e serviços" },
+  { id: "financeiro", label: "Financeiro", icon: I.wallet, desc: "Contas a pagar, a receber e o caixa da empresa" },
+  { id: "relatorios", label: "Relatórios", icon: I.chart, desc: "Gráficos e números do seu negócio" },
+  { id: "tarefas", label: "Tarefas", icon: I.check, desc: "Sua lista de tarefas e prazos" },
+  { id: "agenda", label: "Agenda", icon: I.cal, desc: "Compromissos, visitas técnicas e reuniões" },
 ];
 
 const CONTA: Item[] = [
-  { id: "empresa", label: "Minha empresa", icon: I.building },
-  { id: "planos", label: "Planos & Cobrança", icon: I.card },
-  { id: "importar", label: "Importar dados", icon: I.upload },
+  { id: "empresa", label: "Minha empresa", icon: I.building, desc: "Dados da sua empresa (CNPJ, endereço…)" },
+  { id: "planos", label: "Plano e pagamento", icon: I.card, desc: "Sua assinatura e faturas" },
+  { id: "importar", label: "Importar dados", icon: I.upload, desc: "Trazer dados de uma planilha ou do sistema antigo" },
 ];
 
 export function AppSidebar({ email, plan }: { email: string; plan: string }) {
@@ -82,6 +82,7 @@ export function AppSidebar({ email, plan }: { email: string; plan: string }) {
   const NavItem = ({ item }: { item: Item }) => (
     <Link
       href={`/${item.id}`}
+      title={item.desc}
       aria-current={isActive(item.id) ? "page" : undefined}
       className={`group relative mb-0.5 flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] font-semibold transition ${
         isActive(item.id)
@@ -110,7 +111,7 @@ export function AppSidebar({ email, plan }: { email: string; plan: string }) {
         <div>
           <b className="block text-[17px] font-extrabold tracking-tight">NEXFLOW</b>
           <span className="block text-[11px] font-semibold tracking-wide text-[var(--muted)]">
-            Enterprise Suite
+            Sistema de gestão
           </span>
         </div>
       </div>
@@ -146,11 +147,12 @@ export function AppSidebar({ email, plan }: { email: string; plan: string }) {
         ))}
 
         <p className="px-3 pb-1.5 pt-4 text-[10.5px] font-bold uppercase tracking-wider text-[var(--muted)]">
-          Inteligência
+          Ajuda automática
         </p>
-        <NavItem item={{ id: "automacoes", label: "Automações", icon: I.zap }} />
+        <NavItem item={{ id: "automacoes", label: "Automações", icon: I.zap, desc: "O sistema faz tarefas sozinho quando algo acontece" }} />
         <Link
           href="/ai"
+          title="Assistente que responde sobre seus números e te dá dicas"
           aria-current={isActive("ai") ? "page" : undefined}
           className={`group relative mb-0.5 flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] font-semibold transition ${
             isActive("ai")

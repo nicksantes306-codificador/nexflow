@@ -27,16 +27,16 @@ export default async function CrmPage() {
   return (
     <div className="p-5 md:p-7">
       <PageHeader
-        title="CRM · Funil de vendas"
-        subtitle={`${lista.length} leads · arraste os cards entre as etapas`}
+        title="Funil de vendas"
+        subtitle="Acompanhe cada cliente em potencial até fechar o negócio. Arraste os cartões entre as etapas."
         icon={ICON}
       />
 
       <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <KpiCard label="Leads no funil" value={String(noPipeline.length)} hint={`${lista.length} no total`} />
-        <KpiCard label="Pipeline ativo" value={money(pipeline)} tone="green" hint="em negociação" />
-        <KpiCard label="Negócios ganhos" value={String(ganhos)} />
-        <KpiCard label="Conversão" value={`${conversao}%`} hint="lead → ganho" />
+        <KpiCard label="Negócios em aberto" value={String(noPipeline.length)} hint={`${lista.length} no total`} />
+        <KpiCard label="Em negociação" value={money(pipeline)} tone="green" hint="valor somado" />
+        <KpiCard label="Negócios fechados" value={String(ganhos)} />
+        <KpiCard label="Taxa de fechamento" value={`${conversao}%`} hint="quantos viraram negócio" />
       </div>
 
       {error && (

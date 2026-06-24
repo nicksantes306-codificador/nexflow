@@ -32,7 +32,7 @@ export default function LoginPage() {
           <LogoMark size={40} />
           <div>
             <b className="block text-[17px] font-extrabold tracking-tight">NEXFLOW</b>
-            <span className="block text-[11px] font-semibold tracking-wide text-slate-400">Enterprise Suite</span>
+            <span className="block text-[11px] font-semibold tracking-wide text-slate-400">Sistema de gestão</span>
           </div>
         </div>
 

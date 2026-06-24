@@ -1,5 +1,10 @@
+import path from "path";
+import { fileURLToPath } from "url";
+
 /** @type {import('next').NextConfig} */
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const isProd = process.env.NODE_ENV === "production";
 
 // CSP estrito — aplicado SOMENTE em produção (em dev, o HMR/eval do Next
@@ -39,6 +44,7 @@ const securityHeaders = [
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false, // remove o header X-Powered-By (não vaza o stack)
+  outputFileTracingRoot: path.join(__dirname, "../.."),
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
   },

@@ -64,7 +64,7 @@ export default async function FinanceiroPage() {
     <div className="p-5 md:p-7">
       <PageHeader
         title="Financeiro"
-        subtitle="DRE simplificado · fluxo de caixa"
+        subtitle="Contas a pagar, a receber e o caixa da empresa"
         icon={
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" /><path d="M3 5v14a2 2 0 0 0 2 2h16v-5" /><path d="M18 12a2 2 0 0 0 0 4h4v-4z" /></svg>
         }

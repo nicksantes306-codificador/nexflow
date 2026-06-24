@@ -76,7 +76,7 @@ export default async function ProjetosPage() {
     <div className="p-5 md:p-7">
       <PageHeader
         title="Obras e Serviços"
-        subtitle={`${emAndamento} em andamento de ${projetos.length} projetos`}
+        subtitle={`${emAndamento} obras em andamento de ${projetos.length} no total`}
         icon={I.hat}
         action={<QuickCreate action={criarProjeto} title="+ Nova obra" fields={campos} />}
       />

@@ -5,9 +5,9 @@ import { LogoGlyph } from "@/components/logo";
 import type { ChatMsg } from "@/lib/ai/nexflow-ai";
 
 const SUGESTOES = [
-  "Resumir meu pipeline",
-  "O que priorizar hoje?",
-  "Riscos das obras",
+  "Resumo das vendas",
+  "O que fazer hoje?",
+  "Obras com problema",
   "Como está o financeiro?",
 ];
 
@@ -53,7 +53,7 @@ export function AiChat({
         </span>
         <div className="flex-1">
           <h1 className="text-[19px] font-extrabold tracking-tight">NEXFLOW AI</h1>
-          <p className="text-[12px] text-[var(--muted)]">Assistente dos seus dados de CRM, obras e financeiro</p>
+          <p className="text-[12px] text-[var(--muted)]">Pergunte e ele responde sobre suas vendas, obras e finanças</p>
         </div>
         <span
           className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold"
@@ -78,7 +78,7 @@ export function AiChat({
               </span>
               <p className="mt-4 text-[15px] font-bold">Como posso ajudar?</p>
               <p className="mt-1 text-[13px] text-[var(--muted)]">
-                Pergunte sobre seu pipeline, obras, financeiro ou prioridades.
+                Pergunte sobre suas vendas, obras, finanças ou o que fazer primeiro.
               </p>
               <div className="mt-5 flex flex-wrap justify-center gap-2">
                 {SUGESTOES.map((s) => (
@@ -146,7 +146,7 @@ export function AiChat({
             }
           }}
           rows={1}
-          placeholder="Pergunte à NEXFLOW AI…"
+          placeholder="Escreva sua pergunta…"
           className="max-h-32 flex-1 resize-none bg-transparent px-2 py-2 text-[14px] outline-none placeholder:text-[var(--muted)]"
         />
         <button

@@ -24,7 +24,7 @@ export default async function AutomacoesPage() {
     <div className="p-5 md:p-7">
       <PageHeader
         title="Automações"
-        subtitle="Crie regras no-code: quando algo acontece, o NEXFLOW age sozinho."
+        subtitle="Crie regras simples: quando algo acontecer, o sistema faz a tarefa sozinho."
         icon={ICON}
       />
 

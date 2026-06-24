@@ -147,10 +147,10 @@ export function DashboardClient({ data }: { data: DashData }) {
     icon: React.ReactNode; sub: string; delta?: { v: string; up: boolean };
   };
   const KPIS: Kpi[] = [
-    { label: "Receita acumulada", value: data.receitaAcum, format: brCompact, icon: ICON.receita, sub: "recebido no total", delta: data.demo ? { v: "18,4%", up: true } : undefined },
-    { label: "Receita mensal", value: data.receitaMes, format: brCompact, icon: ICON.mes, sub: "mês atual", delta: mesDelta !== 0 ? { v: (mesDelta > 0 ? "+" : "") + mesDelta + "%", up: mesDelta >= 0 } : data.demo ? { v: "6,2%", up: true } : undefined },
-    { label: "Obras ativas", value: data.obrasAtivas, format: (n) => String(Math.round(n)), icon: ICON.obra, sub: `${data.obrasCriticas} críticas`, delta: data.demo ? { v: "+3", up: true } : undefined },
-    { label: "Taxa de conversão", value: data.conversao, format: (n) => Math.round(n) + "%", icon: ICON.conv, sub: "lead → ganho", delta: data.demo ? { v: "+4 p.p.", up: true } : undefined },
+    { label: "Faturamento no ano", value: data.receitaAcum, format: brCompact, icon: ICON.receita, sub: "total já recebido", delta: data.demo ? { v: "18,4%", up: true } : undefined },
+    { label: "Faturamento do mês", value: data.receitaMes, format: brCompact, icon: ICON.mes, sub: "este mês", delta: mesDelta !== 0 ? { v: (mesDelta > 0 ? "+" : "") + mesDelta + "%", up: mesDelta >= 0 } : data.demo ? { v: "6,2%", up: true } : undefined },
+    { label: "Obras ativas", value: data.obrasAtivas, format: (n) => String(Math.round(n)), icon: ICON.obra, sub: `${data.obrasCriticas} precisam de atenção`, delta: data.demo ? { v: "+3", up: true } : undefined },
+    { label: "Taxa de fechamento", value: data.conversao, format: (n) => Math.round(n) + "%", icon: ICON.conv, sub: "leads que viraram negócio", delta: data.demo ? { v: "+4 p.p.", up: true } : undefined },
   ];
 
   return (
@@ -170,12 +170,12 @@ export function DashboardClient({ data }: { data: DashData }) {
 
       <header className="top">
         <div>
-          <h1>Console Executivo<span className="live"><span className="dot" />AO VIVO</span></h1>
+          <h1>Painel<span className="live"><span className="dot" />AO VIVO</span></h1>
           <p className="sub" suppressHydrationWarning>{clock}</p>
         </div>
         <label className="search">
           <svg className="ic" viewBox="0 0 24 24" style={{ width: 17, height: 17 }}><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
-          <input placeholder="Buscar obras, contratos, clientes…" />
+          <input placeholder="Procurar obras, clientes…" />
           <kbd>⌘K</kbd>
         </label>
         <button className="iconbtn" aria-label="Notificações">
@@ -184,7 +184,7 @@ export function DashboardClient({ data }: { data: DashData }) {
         </button>
         <button className="ai-btn">
           <svg className="ic" viewBox="0 0 24 24"><path d="M12 3l1.9 5.6L19.5 10l-5.6 1.4L12 17l-1.9-5.6L4.5 10l5.6-1.4z" /></svg>
-          Perguntar à IA
+          Perguntar ao assistente
         </button>
       </header>
 
@@ -193,8 +193,8 @@ export function DashboardClient({ data }: { data: DashData }) {
           <div>
             <h2>Bom dia, <em>Nicolas</em></h2>
             <p>
-              Panorama operacional e financeiro da MAXTEC hoje.
-              {data.demo && " (dados de demonstração — cadastre leads, obras e lançamentos para ver os reais)"}
+              Veja como está a sua empresa hoje.
+              {data.demo && " (dados de exemplo — cadastre seus clientes, obras e contas para ver os reais)"}
             </p>
           </div>
           <div className="seg">
@@ -223,8 +223,8 @@ export function DashboardClient({ data }: { data: DashData }) {
           <div className="card c-main reveal" style={{ ["--i" as string]: 4 }}>
             <div className="skel"><b style={{ width: "40%" }} /><b style={{ width: "90%", height: 150 }} /><b style={{ width: "60%" }} /></div>
             <div className="hdr">
-              <div><h3>Receita &amp; Previsão Financeira</h3><div className="mut">Realizado por mês · projeção com tendência</div></div>
-              <span className="pill">Previsão: {brCompact(data.rev.previsao)}</span>
+              <div><h3>Faturamento e previsão</h3><div className="mut">Mês a mês, com a tendência dos próximos</div></div>
+              <span className="pill">Previsão do ano: {brCompact(data.rev.previsao)}</span>
             </div>
             <div className="legend">
               <span><i style={{ background: "var(--accent)" }} />Realizado</span>
@@ -236,7 +236,7 @@ export function DashboardClient({ data }: { data: DashData }) {
           <div className="card c-side reveal" style={{ ["--i" as string]: 5 }}>
             <div className="skel"><b style={{ width: "50%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /></div>
             <div className="hdr">
-              <div><h3>Obras em andamento</h3><div className="mut">{data.obrasAtivas} ativas · {data.obrasCriticas} críticas</div></div>
+              <div><h3>Obras em andamento</h3><div className="mut">{data.obrasAtivas} em andamento · {data.obrasCriticas} precisam de atenção</div></div>
               <Link href="/projetos" className="pill ghost">Ver todas</Link>
             </div>
             <div style={{ marginTop: 6 }}>
@@ -252,7 +252,7 @@ export function DashboardClient({ data }: { data: DashData }) {
           <div className="card c-pipe reveal" style={{ ["--i" as string]: 6 }}>
             <div className="skel"><b style={{ width: "45%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /></div>
             <div className="hdr">
-              <div><h3>Funil comercial</h3><div className="mut">{data.oportunidades} oportunidades · {brCompact(data.pipelineValor)} em pipeline</div></div>
+              <div><h3>Funil de vendas</h3><div className="mut">{data.oportunidades} negócios em aberto · {brCompact(data.pipelineValor)} em negociação</div></div>
               <Link href="/crm" className="pill ghost">Abrir CRM</Link>
             </div>
             <div style={{ marginTop: 4, paddingBottom: 8 }}>
@@ -271,7 +271,7 @@ export function DashboardClient({ data }: { data: DashData }) {
 
           <div className="card c-team reveal" style={{ ["--i" as string]: 7 }}>
             <div className="skel"><b style={{ width: "50%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /></div>
-            <div className="hdr"><div><h3>Responsáveis em campo</h3><div className="mut">{data.responsaveis.length} em obras ativas</div></div></div>
+            <div className="hdr"><div><h3>Equipes nas obras</h3><div className="mut">{data.responsaveis.length} em obras ativas</div></div></div>
             <div style={{ marginTop: 4 }}>
               {data.responsaveis.map((e, i) => (
                 <div className="team" key={e.nome + i}>
@@ -285,7 +285,7 @@ export function DashboardClient({ data }: { data: DashData }) {
 
           <div className="card c-alert reveal" style={{ ["--i" as string]: 8 }}>
             <div className="skel"><b style={{ width: "55%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /></div>
-            <div className="hdr"><div><h3>Alertas operacionais</h3><div className="mut">{data.alertas.length} {data.alertas.length === 1 ? "item exige" : "itens exigem"} atenção</div></div></div>
+            <div className="hdr"><div><h3>Avisos importantes</h3><div className="mut">{data.alertas.length} {data.alertas.length === 1 ? "item precisa" : "itens precisam"} de atenção</div></div></div>
             <div style={{ marginTop: 4 }}>
               {data.alertas.map((a, i) => (
                 <div className={`alert ${a.cls}`} key={a.txt + i}>
