@@ -25,8 +25,8 @@ type FinTipo = "Entrada" | "Saída";
 type FinStatus = "Pendente" | "Pago" | "Recebido" | "Atrasado" | "Cancelado";
 
 // ── tenants ──
-type TenantsRow = { id: string; name: string; cnpj: string | null; plan: Plan; created_at: string; updated_at: string };
-type TenantsInsert = { id?: string; name: string; cnpj?: string | null; plan?: Plan; created_at?: string; updated_at?: string };
+type TenantsRow = { id: string; name: string; cnpj: string | null; plan: Plan; nome_fantasia: string | null; situacao: string | null; abertura: string | null; cnae: string | null; natureza_juridica: string | null; porte: string | null; capital_social: number | null; endereco: string | null; telefone: string | null; email: string | null; dados: Json | null; created_at: string; updated_at: string };
+type TenantsInsert = { id?: string; name: string; cnpj?: string | null; plan?: Plan; nome_fantasia?: string | null; situacao?: string | null; abertura?: string | null; cnae?: string | null; natureza_juridica?: string | null; porte?: string | null; capital_social?: number | null; endereco?: string | null; telefone?: string | null; email?: string | null; dados?: Json | null; created_at?: string; updated_at?: string };
 
 // ── profiles ──
 type ProfilesRow = { id: string; full_name: string | null; email: string | null; avatar_url: string | null; created_at: string; updated_at: string };
