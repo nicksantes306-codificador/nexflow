@@ -40,6 +40,38 @@ export async function criarOrcamento(
   return { ok: true };
 }
 
+const ORC_STATUS = ["rascunho", "enviado", "aprovado", "recusado"] as const;
+
+export async function editarOrcamento(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const id = String(formData.get("id") ?? "");
+  if (!id) return { error: "Orçamento inválido." };
+  const titulo = String(formData.get("titulo") ?? "").trim();
+  if (!titulo) return { error: "Informe o título do orçamento." };
+
+  const supabase = await createClient();
+  const valor = Number(formData.get("valor_total") ?? 0);
+  const clientId = String(formData.get("client_id") ?? "").trim();
+  const status = String(formData.get("status") ?? "rascunho");
+
+  const { error } = await supabase
+    .from("budgets")
+    .update({
+      titulo,
+      client_id: clientId === "" ? null : clientId,
+      valor_total: Number.isFinite(valor) ? valor : 0,
+      status: ((ORC_STATUS as readonly string[]).includes(status) ? status : "rascunho") as (typeof ORC_STATUS)[number],
+      validade: emptyToNull(formData.get("validade")),
+    })
+    .eq("id", id);
+
+  if (error) return { error: error.message };
+  revalidatePath("/orcamentos");
+  return { ok: true };
+}
+
 function emptyToNull(v: FormDataEntryValue | null): string | null {
   const s = String(v ?? "").trim();
   return s === "" ? null : s;

@@ -9,8 +9,9 @@ import {
 } from "@/components/ui";
 import { QuickCreate, type Field } from "@/components/quick-create";
 import { DeleteButton } from "@/components/delete-button";
+import { EditRecord } from "@/components/edit-record";
 import { moneyFull, dateBR } from "@/lib/format";
-import { criarLancamento } from "./actions";
+import { criarLancamento, editarLancamento } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -128,7 +129,17 @@ export default async function FinanceiroPage() {
                 {e.tipo === "Entrada" ? "+" : "−"}
                 {moneyFull(Number(e.valor))}
               </td>
-              <td className="px-2 py-2.5"><DeleteButton tabela="finance_entries" id={e.id} path="/financeiro" nome={e.descricao} /></td>
+              <td className="px-2 py-2.5">
+                <div className="flex items-center justify-end gap-1.5">
+                  <EditRecord
+                    action={editarLancamento}
+                    titulo="Editar lançamento"
+                    fields={CAMPOS}
+                    initial={{ id: e.id, tipo: e.tipo, descricao: e.descricao, valor: e.valor, status: e.status, data: e.data, categoria: e.categoria ?? "" }}
+                  />
+                  <DeleteButton tabela="finance_entries" id={e.id} path="/financeiro" nome={e.descricao} />
+                </div>
+              </td>
             </tr>
           ))}
         </TableShell>

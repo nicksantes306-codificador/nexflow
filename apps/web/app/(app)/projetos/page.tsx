@@ -3,8 +3,9 @@ import type { Project, Client } from "@/lib/types";
 import { PageHeader, TableShell, EmptyHint, KpiCard } from "@/components/ui";
 import { QuickCreate, type Field } from "@/components/quick-create";
 import { DeleteButton } from "@/components/delete-button";
+import { EditRecord } from "@/components/edit-record";
 import { moneyFull, dateBR } from "@/lib/format";
-import { criarProjeto } from "./actions";
+import { criarProjeto, editarProjeto } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -113,7 +114,17 @@ export default async function ProjetosPage() {
               <td className="px-4 py-3"><Progresso pc={Number(p.progresso)} /></td>
               <td className="px-4 py-3 text-[var(--muted)]">{dateBR(p.fim)}</td>
               <td className="px-4 py-3 text-right font-bold text-[var(--accent)]" style={{ fontVariantNumeric: "tabular-nums" }}>{moneyFull(Number(p.valor))}</td>
-              <td className="px-2 py-3"><DeleteButton tabela="projects" id={p.id} path="/projetos" nome={p.nome} /></td>
+              <td className="px-2 py-3">
+                <div className="flex items-center justify-end gap-1.5">
+                  <EditRecord
+                    action={editarProjeto}
+                    titulo="Editar obra"
+                    fields={campos}
+                    initial={{ id: p.id, nome: p.nome, client_id: p.client_id ?? "", status: p.status, valor: p.valor, custo_real: p.custo_real, progresso: p.progresso, responsavel: p.responsavel ?? "", inicio: p.inicio ?? "", fim: p.fim ?? "" }}
+                  />
+                  <DeleteButton tabela="projects" id={p.id} path="/projetos" nome={p.nome} />
+                </div>
+              </td>
             </tr>
           ))}
         </TableShell>

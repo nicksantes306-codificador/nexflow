@@ -4,8 +4,16 @@ import type { Budget, Client } from "@/lib/types";
 import { PageHeader, TableShell, EmptyHint, StatusBadge, KpiCard } from "@/components/ui";
 import { QuickCreate, type Field } from "@/components/quick-create";
 import { DeleteButton } from "@/components/delete-button";
+import { EditRecord } from "@/components/edit-record";
 import { moneyFull, dateBR } from "@/lib/format";
-import { criarOrcamento } from "./actions";
+import { criarOrcamento, editarOrcamento } from "./actions";
+
+const STATUS_ORC = [
+  { value: "rascunho", label: "Rascunho" },
+  { value: "enviado", label: "Enviado" },
+  { value: "aprovado", label: "Aprovado" },
+  { value: "recusado", label: "Recusado" },
+];
 
 export const dynamic = "force-dynamic";
 
@@ -82,7 +90,17 @@ export default async function OrcamentosPage() {
               <td className="px-4 py-3"><StatusBadge status={o.status} /></td>
               <td className="px-4 py-3 text-[var(--muted)]">{dateBR(o.validade)}</td>
               <td className="px-4 py-3 text-right font-bold text-[var(--accent)]" style={{ fontVariantNumeric: "tabular-nums" }}>{moneyFull(Number(o.valor_total))}</td>
-              <td className="px-2 py-3"><DeleteButton tabela="budgets" id={o.id} path="/orcamentos" nome={o.titulo} /></td>
+              <td className="px-2 py-3">
+                <div className="flex items-center justify-end gap-1.5">
+                  <EditRecord
+                    action={editarOrcamento}
+                    titulo="Editar orçamento"
+                    fields={[...campos, { name: "status", label: "Status", type: "select", options: STATUS_ORC }]}
+                    initial={{ id: o.id, titulo: o.titulo, client_id: o.client_id ?? "", valor_total: o.valor_total, validade: o.validade ?? "", status: o.status }}
+                  />
+                  <DeleteButton tabela="budgets" id={o.id} path="/orcamentos" nome={o.titulo} />
+                </div>
+              </td>
             </tr>
           ))}
         </TableShell>

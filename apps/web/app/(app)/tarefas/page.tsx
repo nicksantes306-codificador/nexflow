@@ -3,8 +3,9 @@ import type { Tables } from "@nexflow/db";
 import { PageHeader, TableShell, EmptyHint, KpiCard } from "@/components/ui";
 import { QuickCreate, type Field } from "@/components/quick-create";
 import { DeleteButton } from "@/components/delete-button";
+import { EditRecord } from "@/components/edit-record";
 import { dateBR } from "@/lib/format";
-import { criarTarefa, toggleTarefa } from "./actions";
+import { criarTarefa, editarTarefa, toggleTarefa } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -100,7 +101,17 @@ export default async function TarefasPage() {
                 <td className="px-4 py-3 text-sm font-medium" style={{ color: venc ? "var(--bad)" : "var(--muted)" }}>
                   {venc && "⚠ "}{dateBR(t.prazo)}
                 </td>
-                <td className="px-2 py-3"><DeleteButton tabela="tasks" id={t.id} path="/tarefas" nome={t.titulo} /></td>
+                <td className="px-2 py-3">
+                  <div className="flex items-center justify-end gap-1.5">
+                    <EditRecord
+                      action={editarTarefa}
+                      titulo="Editar tarefa"
+                      fields={CAMPOS}
+                      initial={{ id: t.id, titulo: t.titulo, cliente: t.cliente ?? "", prioridade: t.prioridade ?? "Média", prazo: t.prazo ?? "" }}
+                    />
+                    <DeleteButton tabela="tasks" id={t.id} path="/tarefas" nome={t.titulo} />
+                  </div>
+                </td>
               </tr>
             );
           })}

@@ -48,6 +48,9 @@ export type DashInput = {
   clientesNome: Record<string, string>;
   now?: Date;
   desde?: Date | null;
+  // Opcionais: alimentam os lembretes automáticos (avisos).
+  tasks?: { titulo: string; prazo: string | null; done: boolean }[];
+  budgets?: { titulo: string; status: string; validade: string | null }[];
 };
 
 const MESES = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
@@ -206,16 +209,42 @@ export function montarDash(input: DashInput): DashData {
     if (respReais.length >= 4) break;
   }
 
-  /* ----- alertas operacionais (derivados) ----- */
+  /* ----- alertas / lembretes automáticos (derivados dos dados) ----- */
+  const tasks = input.tasks ?? [];
+  const budgets = input.budgets ?? [];
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const localISO = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const hojeISO = localISO(now);
+  const em7ISO = localISO(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7));
+
   const alertas: Alerta[] = [];
+  // Recebíveis atrasados
   for (const e of finance.filter((e) => e.tipo === "Entrada" && e.status === "Atrasado").slice(0, 2))
-    alertas.push({ cls: "bad", txt: `Recebível atrasado: ${e.descricao} (${moneyFull(Number(e.valor || 0))})`, meta: "Financeiro" });
+    alertas.push({ cls: "bad", txt: `Conta a receber atrasada: ${e.descricao} (${moneyFull(Number(e.valor || 0))})`, meta: "Financeiro" });
+  // Tarefas vencidas
+  for (const t of tasks.filter((t) => !t.done && t.prazo != null && String(t.prazo) < hojeISO).slice(0, 2))
+    alertas.push({ cls: "bad", txt: `Tarefa vencida: ${t.titulo}`, meta: "Tarefas" });
+  // Tarefas vencendo nos próximos 7 dias
+  for (const t of tasks.filter((t) => !t.done && t.prazo != null && String(t.prazo) >= hojeISO && String(t.prazo) <= em7ISO).slice(0, 2))
+    alertas.push({ cls: "warn", txt: `Tarefa a vencer: ${t.titulo}`, meta: "Tarefas" });
+  // Orçamentos perto do vencimento (ainda sem decisão)
+  for (const b of budgets.filter((b) => b.validade != null && String(b.validade) >= hojeISO && String(b.validade) <= em7ISO && b.status !== "aprovado" && b.status !== "recusado").slice(0, 1))
+    alertas.push({ cls: "warn", txt: `Orçamento vence em breve: ${b.titulo}`, meta: "Comercial" });
+  // Orçamentos enviados que venceram sem resposta
+  for (const b of budgets.filter((b) => b.validade != null && String(b.validade) < hojeISO && b.status === "enviado").slice(0, 1))
+    alertas.push({ cls: "info", txt: `Orçamento venceu sem resposta: ${b.titulo}`, meta: "Comercial" });
+  // Obras paradas / aguardando material
   for (const p of ativas.filter((p) => p.status === "Pausado").slice(0, 1))
     alertas.push({ cls: "warn", txt: `Obra pausada: ${p.nome}`, meta: "Obras" });
   for (const p of ativas.filter((p) => p.status === "Aguardando material").slice(0, 1))
     alertas.push({ cls: "info", txt: `Aguardando material: ${p.nome}`, meta: "Obras" });
+  // Contas a receber em aberto
   for (const e of finance.filter((e) => e.tipo === "Entrada" && e.status === "Pendente").slice(0, 1))
-    alertas.push({ cls: "warn", txt: `A receber em aberto: ${e.descricao}`, meta: "Financeiro" });
+    alertas.push({ cls: "info", txt: `Conta a receber em aberto: ${e.descricao}`, meta: "Financeiro" });
+
+  // Mais urgentes primeiro (vermelho > amarelo > azul)
+  const sev: Record<Alerta["cls"], number> = { bad: 0, warn: 1, info: 2 };
+  alertas.sort((a, b) => sev[a.cls] - sev[b.cls]);
 
   return {
     demo: vazio,

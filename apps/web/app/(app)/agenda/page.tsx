@@ -3,7 +3,8 @@ import type { Tables } from "@nexflow/db";
 import { PageHeader, EmptyHint, KpiCard } from "@/components/ui";
 import { QuickCreate, type Field } from "@/components/quick-create";
 import { DeleteButton } from "@/components/delete-button";
-import { criarEvento } from "./actions";
+import { EditRecord } from "@/components/edit-record";
+import { criarEvento, editarEvento } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -85,7 +86,15 @@ export default async function AgendaPage() {
                     {e.tipo}
                   </span>
                 )}
-                <DeleteButton tabela="events" id={e.id} path="/agenda" nome={e.titulo} />
+                <div className="flex items-center gap-1.5">
+                  <EditRecord
+                    action={editarEvento}
+                    titulo="Editar evento"
+                    fields={CAMPOS}
+                    initial={{ id: e.id, titulo: e.titulo, data: e.data, hora: e.hora ?? "", tipo: e.tipo ?? "", cliente: e.cliente ?? "", local: e.local ?? "" }}
+                  />
+                  <DeleteButton tabela="events" id={e.id} path="/agenda" nome={e.titulo} />
+                </div>
               </li>
             );
           })}

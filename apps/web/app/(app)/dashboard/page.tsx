@@ -28,12 +28,21 @@ export default async function DashboardPage({
   const periodo = PERIODOS.includes((sp.periodo ?? "") as (typeof PERIODOS)[number]) ? sp.periodo! : "ano";
 
   const supabase = await createClient();
-  const [leadsRes, prjRes, finRes, cliRes] = await Promise.all([
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const [leadsRes, prjRes, finRes, cliRes, tasksRes, budgetsRes, profRes] = await Promise.all([
     supabase.from("leads").select("*").order("valor", { ascending: false }),
     supabase.from("projects").select("*"),
     supabase.from("finance_entries").select("*"),
     supabase.from("clients").select("id,nome"),
+    supabase.from("tasks").select("titulo,prazo,done"),
+    supabase.from("budgets").select("titulo,status,validade"),
+    user ? supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle() : Promise.resolve({ data: null }),
   ]);
+
+  const nome =
+    ((profRes.data?.full_name as string | null | undefined) ?? "").trim() ||
+    (user?.email ?? "").split("@")[0];
 
   const clientesNome: Record<string, string> = {};
   for (const c of (cliRes.data ?? []) as Pick<Client, "id" | "nome">[]) clientesNome[c.id] = c.nome;
@@ -44,7 +53,9 @@ export default async function DashboardPage({
     finance: (finRes.data ?? []) as FinanceEntry[],
     clientesNome,
     desde: desdeDe(periodo, new Date()),
+    tasks: (tasksRes.data ?? []) as { titulo: string; prazo: string | null; done: boolean }[],
+    budgets: (budgetsRes.data ?? []) as { titulo: string; status: string; validade: string | null }[],
   });
 
-  return <DashboardClient data={dash} periodo={periodo} />;
+  return <DashboardClient data={dash} periodo={periodo} nome={nome} />;
 }

@@ -1,5 +1,19 @@
+import Link from "next/link";
 import type { Client } from "@/lib/types";
 import { DeleteButton } from "@/components/delete-button";
+import { EditRecord } from "@/components/edit-record";
+import type { Field } from "@/components/quick-create";
+import { editarCliente } from "./actions";
+
+const CAMPOS_CLIENTE: Field[] = [
+  { name: "nome", label: "Nome / Razão social", required: true },
+  { name: "cnpj", label: "CNPJ" },
+  { name: "segmento", label: "Segmento" },
+  { name: "contato", label: "Pessoa de contato" },
+  { name: "telefone", label: "Telefone" },
+  { name: "email", label: "E-mail", type: "email" },
+  { name: "endereco", label: "Endereço" },
+];
 
 const C = {
   phone: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2Z" /></svg>,
@@ -38,14 +52,22 @@ export function ClientCard({ c }: { c: Client }) {
           {iniciais(c.nome)}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate font-bold leading-tight">{c.nome}</p>
+          <Link href={`/clientes/${c.id}`} className="block truncate font-bold leading-tight transition hover:text-[var(--accent)]" title="Abrir ficha completa">{c.nome}</Link>
           {c.segmento && (
             <span className="mt-1.5 inline-block rounded-full bg-[var(--bg2)] px-2.5 py-0.5 text-[11px] font-semibold text-[var(--muted)]">
               {c.segmento}
             </span>
           )}
         </div>
-        <DeleteButton tabela="clients" id={c.id} path="/clientes" nome={c.nome} />
+        <div className="flex items-center gap-1.5">
+          <EditRecord
+            action={editarCliente}
+            titulo="Editar cliente"
+            fields={CAMPOS_CLIENTE}
+            initial={{ id: c.id, nome: c.nome, cnpj: c.cnpj ?? "", segmento: c.segmento ?? "", contato: c.contato ?? "", telefone: c.telefone ?? "", email: c.email ?? "", endereco: c.endereco ?? "" }}
+          />
+          <DeleteButton tabela="clients" id={c.id} path="/clientes" nome={c.nome} />
+        </div>
       </div>
 
       <div className="mt-4 space-y-2 border-t border-[var(--border)] pt-4">

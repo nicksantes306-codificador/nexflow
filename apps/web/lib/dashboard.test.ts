@@ -46,7 +46,22 @@ describe("montarDash", () => {
     expect(d.rev.real[4]).toBe(20_000);
     expect(d.rev.previsao).toBeGreaterThan(0);
     // alerta de recebível em aberto deve aparecer
-    expect(d.alertas.some((a) => a.txt.includes("A receber"))).toBe(true);
+    expect(d.alertas.some((a) => a.txt.includes("receber em aberto"))).toBe(true);
+  });
+
+  it("gera lembretes de tarefas vencidas e orçamentos a vencer", () => {
+    const tasks = [
+      { titulo: "Enviar ART", prazo: "2026-06-10", done: false }, // vencida (hoje=15/jun)
+      { titulo: "Já feita", prazo: "2026-06-01", done: true }, // concluída → ignora
+    ];
+    const budgets = [
+      { titulo: "Painel CCM", status: "enviado", validade: "2026-06-18" }, // vence em 3 dias
+    ];
+    const d = montarDash({ leads: [], projects: [], finance: [], clientesNome: {}, now, tasks, budgets });
+    expect(d.alertas.some((a) => a.txt.includes("Tarefa vencida: Enviar ART"))).toBe(true);
+    expect(d.alertas.some((a) => a.txt.includes("Orçamento vence em breve: Painel CCM"))).toBe(true);
+    expect(d.alertas.some((a) => a.txt.includes("Já feita"))).toBe(false);
+    expect(d.alertas[0].cls).toBe("bad"); // mais urgente primeiro
   });
 
   it("monta obras e responsáveis a partir dos projetos", () => {

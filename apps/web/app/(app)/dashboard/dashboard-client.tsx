@@ -138,9 +138,15 @@ const ICON = {
   conv: <svg className="ic" viewBox="0 0 24 24"><path d="M22 12A10 10 0 1 1 12 2" /><path d="M22 4 12 14l-3-3" /></svg>,
 };
 
-export function DashboardClient({ data, periodo }: { data: DashData; periodo: string }) {
+export function DashboardClient({ data, periodo, nome }: { data: DashData; periodo: string; nome: string }) {
   const router = useRouter();
   const [clock, setClock] = useState("—");
+  const [saud, setSaud] = useState("Olá");
+  useEffect(() => {
+    const h = new Date().getHours();
+    setSaud(h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite");
+  }, []);
+  const primeiroNome = (nome || "").trim().split(/\s+/)[0] ?? "";
   useEffect(() => {
     const upd = () => {
       const d = new Date();
@@ -201,7 +207,7 @@ export function DashboardClient({ data, periodo }: { data: DashData; periodo: st
       <div className="scroll">
         <div className="greet">
           <div>
-            <h2>Bom dia, <em>Nicolas</em></h2>
+            <h2 suppressHydrationWarning>{saud}{primeiroNome ? <>, <em>{primeiroNome}</em></> : "!"}</h2>
             <p>
               Veja como está a sua empresa hoje.
               {data.demo && " (dados de exemplo — cadastre seus clientes, obras e contas para ver os reais)"}
