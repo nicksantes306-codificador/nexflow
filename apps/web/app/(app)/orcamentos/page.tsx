@@ -5,6 +5,7 @@ import { PageHeader, TableShell, EmptyHint, StatusBadge, KpiCard } from "@/compo
 import { QuickCreate, type Field } from "@/components/quick-create";
 import { DeleteButton } from "@/components/delete-button";
 import { EditRecord } from "@/components/edit-record";
+import { ExportButton } from "@/components/export-button";
 import { moneyFull, dateBR } from "@/lib/format";
 import { criarOrcamento, editarOrcamento } from "./actions";
 
@@ -50,7 +51,12 @@ export default async function OrcamentosPage() {
         title="Orçamentos"
         subtitle={`${orcamentos.length} orçamentos cadastrados`}
         icon={I.file}
-        action={<QuickCreate action={criarOrcamento} title="+ Novo orçamento" fields={campos} />}
+        action={
+          <div className="flex flex-wrap items-center gap-2">
+            {orcamentos.length > 0 && <ExportButton tipo="orcamentos" />}
+            <QuickCreate action={criarOrcamento} title="+ Novo orçamento" fields={campos} />
+          </div>
+        }
       />
 
       {orcamentos.length > 0 && (

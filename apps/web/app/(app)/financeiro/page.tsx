@@ -10,6 +10,7 @@ import {
 import { QuickCreate, type Field } from "@/components/quick-create";
 import { DeleteButton } from "@/components/delete-button";
 import { EditRecord } from "@/components/edit-record";
+import { ExportButton } from "@/components/export-button";
 import { moneyFull, dateBR } from "@/lib/format";
 import { criarLancamento, editarLancamento } from "./actions";
 
@@ -71,11 +72,10 @@ export default async function FinanceiroPage() {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" /><path d="M3 5v14a2 2 0 0 0 2 2h16v-5" /><path d="M18 12a2 2 0 0 0 0 4h4v-4z" /></svg>
         }
         action={
-          <QuickCreate
-            action={criarLancamento}
-            title="+ Novo lançamento"
-            fields={CAMPOS}
-          />
+          <div className="flex flex-wrap items-center gap-2">
+            {entradas.length > 0 && <ExportButton tipo="financeiro" />}
+            <QuickCreate action={criarLancamento} title="+ Novo lançamento" fields={CAMPOS} />
+          </div>
         }
       />
 

@@ -5,6 +5,7 @@ import { PageHeader, TableShell, EmptyHint, KpiCard } from "@/components/ui";
 import { QuickCreate, type Field } from "@/components/quick-create";
 import { DeleteButton } from "@/components/delete-button";
 import { EditRecord } from "@/components/edit-record";
+import { ExportButton } from "@/components/export-button";
 import { moneyFull, dateBR } from "@/lib/format";
 import { criarProjeto, editarProjeto } from "./actions";
 
@@ -81,7 +82,12 @@ export default async function ProjetosPage() {
         title="Obras e Serviços"
         subtitle={`${emAndamento} obras em andamento de ${projetos.length} no total`}
         icon={I.hat}
-        action={<QuickCreate action={criarProjeto} title="+ Nova obra" fields={campos} />}
+        action={
+          <div className="flex flex-wrap items-center gap-2">
+            {projetos.length > 0 && <ExportButton tipo="obras" />}
+            <QuickCreate action={criarProjeto} title="+ Nova obra" fields={campos} />
+          </div>
+        }
       />
 
       <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">

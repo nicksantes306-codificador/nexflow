@@ -3,6 +3,7 @@ import type { Client } from "@/lib/types";
 import { PageHeader, KpiCard, EmptyHint } from "@/components/ui";
 import { ClientCard } from "./client-card";
 import { NewClientForm } from "./new-client";
+import { ExportButton } from "@/components/export-button";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +29,7 @@ export default async function ClientesPage() {
         title="Clientes 360°"
         subtitle={`${clientes.length} ${clientes.length === 1 ? "cliente cadastrado" : "clientes cadastrados"}`}
         icon={I.users}
-        action={<NewClientForm />}
+        action={<div className="flex flex-wrap items-center gap-2">{clientes.length > 0 && <ExportButton tipo="clientes" />}<NewClientForm /></div>}
       />
 
       {clientes.length > 0 && (
