@@ -41,8 +41,8 @@ type InvitesRow = { id: string; tenant_id: string; email: string; role: Role; us
 type InvitesInsert = { id?: string; tenant_id: string; email: string; role?: Role; used_at?: string | null; created_at?: string };
 
 // ── documents ──
-type DocumentsRow = { id: string; tenant_id: string; client_id: string | null; nome: string; path: string; mime: string | null; tamanho: number | null; created_at: string };
-type DocumentsInsert = { id?: string; tenant_id: string; client_id?: string | null; nome: string; path: string; mime?: string | null; tamanho?: number | null; created_at?: string };
+type DocumentsRow = { id: string; tenant_id: string; client_id: string | null; project_id: string | null; nome: string; path: string; mime: string | null; tamanho: number | null; created_at: string };
+type DocumentsInsert = { id?: string; tenant_id: string; client_id?: string | null; project_id?: string | null; nome: string; path: string; mime?: string | null; tamanho?: number | null; created_at?: string };
 
 // ── subscriptions ──
 type SubscriptionsRow = { id: string; tenant_id: string; plan: Plan; status: SubStatus; gateway: string; gateway_subscription_id: string | null; current_period_end: string | null; grace_until: string | null; created_at: string; updated_at: string };

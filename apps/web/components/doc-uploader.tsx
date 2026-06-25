@@ -2,9 +2,10 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { enviarDocumento, type FormState } from "../actions";
+import { enviarDocumento, type FormState } from "@/app/(app)/clientes/actions";
 
-export function DocUploader({ clientId }: { clientId: string }) {
+// Upload de anexo reutilizável: serve para cliente (clientId) ou obra (projectId).
+export function DocUploader({ clientId, projectId }: { clientId?: string; projectId?: string }) {
   const [state, action, pending] = useActionState<FormState, FormData>(enviarDocumento, {});
   const ref = useRef<HTMLFormElement>(null);
   const router = useRouter();
@@ -18,7 +19,8 @@ export function DocUploader({ clientId }: { clientId: string }) {
 
   return (
     <form ref={ref} action={action} className="flex flex-wrap items-center gap-2">
-      <input type="hidden" name="client_id" value={clientId} />
+      <input type="hidden" name="client_id" value={clientId ?? ""} />
+      <input type="hidden" name="project_id" value={projectId ?? ""} />
       <input
         type="file"
         name="arquivo"

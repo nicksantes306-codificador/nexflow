@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import type { Project, Client } from "@/lib/types";
 import { PageHeader, TableShell, EmptyHint, KpiCard } from "@/components/ui";
@@ -108,7 +109,7 @@ export default async function ProjetosPage() {
         >
           {projetos.map((p) => (
             <tr key={p.id} className="transition hover:bg-[var(--bg2)]">
-              <td className="px-4 py-3 font-semibold">{p.nome}</td>
+              <td className="px-4 py-3 font-semibold"><Link href={`/projetos/${p.id}`} className="transition hover:text-[var(--accent)]" title="Abrir ficha da obra">{p.nome}</Link></td>
               <td className="px-4 py-3 text-[var(--muted)]">{p.client_id ? (nomePorId.get(p.client_id) ?? "—") : "—"}</td>
               <td className="px-4 py-3"><StatusObra s={p.status} /></td>
               <td className="px-4 py-3"><Progresso pc={Number(p.progresso)} /></td>

@@ -7,7 +7,7 @@ import { PageHeader, KpiCard, TableShell, EmptyHint, StatusBadge } from "@/compo
 import { moneyFull, dateBR } from "@/lib/format";
 import { iniciais } from "../client-card";
 import { excluirDocumento } from "../actions";
-import { DocUploader } from "./doc-uploader";
+import { DocUploader } from "@/components/doc-uploader";
 
 export const dynamic = "force-dynamic";
 

@@ -67,6 +67,7 @@ export async function enviarDocumento(
   formData: FormData,
 ): Promise<FormState> {
   const clientId = String(formData.get("client_id") ?? "");
+  const projectId = String(formData.get("project_id") ?? "");
   const file = formData.get("arquivo");
   if (!(file instanceof File) || file.size === 0) return { error: "Escolha um arquivo." };
   if (file.size > 10 * 1024 * 1024) return { error: "Arquivo muito grande (máximo 10 MB)." };
@@ -76,7 +77,7 @@ export async function enviarDocumento(
   if (!tenant) return { error: "Nenhuma equipe ativa." };
 
   const safe = file.name.normalize("NFKD").replace(/[^\w.\-]+/g, "_").slice(-120) || "arquivo";
-  const path = `${tenant}/${clientId || "geral"}/${crypto.randomUUID()}_${safe}`;
+  const path = `${tenant}/${projectId || clientId || "geral"}/${crypto.randomUUID()}_${safe}`;
   const bytes = new Uint8Array(await file.arrayBuffer());
 
   const up = await supabase.storage.from("documentos").upload(path, bytes, {
@@ -88,6 +89,7 @@ export async function enviarDocumento(
   const { error } = await supabase.from("documents").insert({
     tenant_id: tenant,
     client_id: clientId || null,
+    project_id: projectId || null,
     nome: file.name,
     path,
     mime: file.type || null,
@@ -98,7 +100,8 @@ export async function enviarDocumento(
     return { error: error.message };
   }
 
-  if (clientId) revalidatePath(`/clientes/${clientId}`);
+  if (projectId) revalidatePath(`/projetos/${projectId}`);
+  else if (clientId) revalidatePath(`/clientes/${clientId}`);
   return { ok: true };
 }
 
@@ -106,12 +109,14 @@ export async function excluirDocumento(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   const path = String(formData.get("path") ?? "");
   const clientId = String(formData.get("client_id") ?? "");
+  const projectId = String(formData.get("project_id") ?? "");
   if (!id) return;
 
   const supabase = await createClient();
   if (path) await supabase.storage.from("documentos").remove([path]);
   await supabase.from("documents").delete().eq("id", id);
-  if (clientId) revalidatePath(`/clientes/${clientId}`);
+  if (projectId) revalidatePath(`/projetos/${projectId}`);
+  else if (clientId) revalidatePath(`/clientes/${clientId}`);
 }
 
 function emptyToNull(v: FormDataEntryValue | null): string | null {
