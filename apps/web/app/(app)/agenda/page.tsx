@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Tables } from "@nexflow/db";
 import { PageHeader, EmptyHint, KpiCard } from "@/components/ui";
 import { QuickCreate, type Field } from "@/components/quick-create";
+import { DeleteButton } from "@/components/delete-button";
 import { criarEvento } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -84,6 +85,7 @@ export default async function AgendaPage() {
                     {e.tipo}
                   </span>
                 )}
+                <DeleteButton tabela="events" id={e.id} path="/agenda" nome={e.titulo} />
               </li>
             );
           })}

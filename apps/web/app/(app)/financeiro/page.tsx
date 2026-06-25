@@ -8,6 +8,7 @@ import {
   KpiCard,
 } from "@/components/ui";
 import { QuickCreate, type Field } from "@/components/quick-create";
+import { DeleteButton } from "@/components/delete-button";
 import { moneyFull, dateBR } from "@/lib/format";
 import { criarLancamento } from "./actions";
 
@@ -101,6 +102,7 @@ export default async function FinanceiroPage() {
               <th className="px-4 py-2.5">Categoria</th>
               <th className="px-4 py-2.5">Status</th>
               <th className="px-4 py-2.5 text-right">Valor</th>
+              <th className="w-10 px-4 py-2.5"></th>
             </tr>
           }
         >
@@ -126,6 +128,7 @@ export default async function FinanceiroPage() {
                 {e.tipo === "Entrada" ? "+" : "−"}
                 {moneyFull(Number(e.valor))}
               </td>
+              <td className="px-2 py-2.5"><DeleteButton tabela="finance_entries" id={e.id} path="/financeiro" nome={e.descricao} /></td>
             </tr>
           ))}
         </TableShell>

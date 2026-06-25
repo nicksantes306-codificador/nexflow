@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Budget, Client } from "@/lib/types";
 import { PageHeader, TableShell, EmptyHint, StatusBadge, KpiCard } from "@/components/ui";
 import { QuickCreate, type Field } from "@/components/quick-create";
+import { DeleteButton } from "@/components/delete-button";
 import { moneyFull, dateBR } from "@/lib/format";
 import { criarOrcamento } from "./actions";
 
@@ -65,6 +66,7 @@ export default async function OrcamentosPage() {
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Validade</th>
               <th className="px-4 py-3 text-right">Valor</th>
+              <th className="w-10 px-4 py-3"></th>
             </tr>
           }
         >
@@ -80,6 +82,7 @@ export default async function OrcamentosPage() {
               <td className="px-4 py-3"><StatusBadge status={o.status} /></td>
               <td className="px-4 py-3 text-[var(--muted)]">{dateBR(o.validade)}</td>
               <td className="px-4 py-3 text-right font-bold text-[var(--accent)]" style={{ fontVariantNumeric: "tabular-nums" }}>{moneyFull(Number(o.valor_total))}</td>
+              <td className="px-2 py-3"><DeleteButton tabela="budgets" id={o.id} path="/orcamentos" nome={o.titulo} /></td>
             </tr>
           ))}
         </TableShell>

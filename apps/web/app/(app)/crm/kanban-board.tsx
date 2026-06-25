@@ -5,6 +5,7 @@ import type { Lead } from "@/lib/types";
 import { ESTAGIOS, ESTAGIO_COR } from "@/lib/constants";
 import { money, moneyFull, dateBR, scoreBadgeColor } from "@/lib/format";
 import { toast } from "@/components/toaster";
+import { excluirRegistro } from "@/lib/actions/delete";
 import { moveLead } from "./actions";
 
 function iniciais(nome: string | null): string {
@@ -57,6 +58,25 @@ export function KanbanBoard({ leads: inicial }: { leads: Lead[] }) {
     });
   }
 
+  function excluir(id: string, nome: string | null) {
+    if (!window.confirm(`Excluir o negócio "${nome ?? "sem nome"}"? Não dá para desfazer.`)) return;
+    const anterior = leads;
+    setLeads((prev) => prev.filter((l) => l.id !== id));
+    startTransition(async () => {
+      const fd = new FormData();
+      fd.set("tabela", "leads");
+      fd.set("id", id);
+      fd.set("path", "/crm");
+      const r = await excluirRegistro(fd);
+      if (r?.error) {
+        setLeads(anterior);
+        toast("Não foi possível excluir", "erro");
+      } else {
+        toast("Negócio excluído");
+      }
+    });
+  }
+
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
       {ESTAGIOS.map((estagio) => {
@@ -101,7 +121,7 @@ export function KanbanBoard({ leads: inicial }: { leads: Lead[] }) {
                   draggable
                   onDragStart={() => setDragId(l.id)}
                   onDragEnd={() => setDragId(null)}
-                  className={`cursor-grab rounded-xl border border-[var(--border)] bg-[var(--panel)] p-3 transition active:cursor-grabbing ${
+                  className={`group cursor-grab rounded-xl border border-[var(--border)] bg-[var(--panel)] p-3 transition active:cursor-grabbing ${
                     dragId === l.id ? "opacity-40" : "hover:-translate-y-0.5"
                   }`}
                   style={{ borderLeft: `3px solid ${cor}`, boxShadow: "var(--shadow)" }}
@@ -111,7 +131,20 @@ export function KanbanBoard({ leads: inicial }: { leads: Lead[] }) {
                       <h3 className="truncate text-[13px] font-bold leading-tight">{l.cliente}</h3>
                       {l.empresa && <p className="truncate text-[11px] text-[var(--muted)]">{l.empresa}</p>}
                     </div>
-                    <ScoreRing score={l.score} />
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => excluir(l.id, l.cliente)}
+                        aria-label="Excluir negócio"
+                        title="Excluir"
+                        className="grid h-6 w-6 shrink-0 cursor-pointer place-items-center rounded-md text-[var(--muted)] opacity-0 transition hover:bg-[color-mix(in_srgb,var(--bad)_14%,transparent)] hover:text-[var(--bad)] group-hover:opacity-100"
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ width: 13, height: 13 }}>
+                          <path d="M3 6h18" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                        </svg>
+                      </button>
+                      <ScoreRing score={l.score} />
+                    </div>
                   </div>
 
                   <p className="mt-2.5 text-[15px] font-extrabold tracking-tight text-[var(--accent)]" style={{ fontVariantNumeric: "tabular-nums" }}>

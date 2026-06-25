@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Tables } from "@nexflow/db";
 import { PageHeader, TableShell, EmptyHint, KpiCard } from "@/components/ui";
 import { QuickCreate, type Field } from "@/components/quick-create";
+import { DeleteButton } from "@/components/delete-button";
 import { dateBR } from "@/lib/format";
 import { criarTarefa, toggleTarefa } from "./actions";
 
@@ -66,6 +67,7 @@ export default async function TarefasPage() {
               <th className="px-4 py-3">Cliente</th>
               <th className="px-4 py-3">Prioridade</th>
               <th className="px-4 py-3">Prazo</th>
+              <th className="w-10 px-4 py-3"></th>
             </tr>
           }
         >
@@ -98,6 +100,7 @@ export default async function TarefasPage() {
                 <td className="px-4 py-3 text-sm font-medium" style={{ color: venc ? "var(--bad)" : "var(--muted)" }}>
                   {venc && "⚠ "}{dateBR(t.prazo)}
                 </td>
+                <td className="px-2 py-3"><DeleteButton tabela="tasks" id={t.id} path="/tarefas" nome={t.titulo} /></td>
               </tr>
             );
           })}

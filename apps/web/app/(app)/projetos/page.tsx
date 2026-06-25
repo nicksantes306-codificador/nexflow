@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Project, Client } from "@/lib/types";
 import { PageHeader, TableShell, EmptyHint, KpiCard } from "@/components/ui";
 import { QuickCreate, type Field } from "@/components/quick-create";
+import { DeleteButton } from "@/components/delete-button";
 import { moneyFull, dateBR } from "@/lib/format";
 import { criarProjeto } from "./actions";
 
@@ -100,6 +101,7 @@ export default async function ProjetosPage() {
               <th className="w-44 px-4 py-3">Progresso</th>
               <th className="px-4 py-3">Término</th>
               <th className="px-4 py-3 text-right">Valor</th>
+              <th className="w-10 px-4 py-3"></th>
             </tr>
           }
         >
@@ -111,6 +113,7 @@ export default async function ProjetosPage() {
               <td className="px-4 py-3"><Progresso pc={Number(p.progresso)} /></td>
               <td className="px-4 py-3 text-[var(--muted)]">{dateBR(p.fim)}</td>
               <td className="px-4 py-3 text-right font-bold text-[var(--accent)]" style={{ fontVariantNumeric: "tabular-nums" }}>{moneyFull(Number(p.valor))}</td>
+              <td className="px-2 py-3"><DeleteButton tabela="projects" id={p.id} path="/projetos" nome={p.nome} /></td>
             </tr>
           ))}
         </TableShell>
