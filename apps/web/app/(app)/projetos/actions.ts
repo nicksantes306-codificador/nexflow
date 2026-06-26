@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { auditar } from "@/lib/audit";
 
 export type FormState = { error?: string; ok?: boolean };
 
@@ -35,6 +36,7 @@ export async function criarProjeto(
   });
 
   if (error) return { error: error.message };
+  await auditar({ acao: "Criou", entidade: "Obra", alvo: nome });
   revalidatePath("/projetos");
   return { ok: true };
 }
@@ -70,6 +72,7 @@ export async function editarProjeto(
     .eq("id", id);
 
   if (error) return { error: error.message };
+  await auditar({ acao: "Editou", entidade: "Obra", alvo: nome });
   revalidatePath("/projetos");
   return { ok: true };
 }

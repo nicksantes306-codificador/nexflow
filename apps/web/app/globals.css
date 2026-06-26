@@ -555,6 +555,35 @@ body {
   from { transform: translateX(-100%); }
   to { transform: none; }
 }
+
+/* Acessibilidade — foco visível por teclado (WCAG AA) */
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+/* "Pular para o conteúdo" — visível só quando focado pelo teclado */
+.nx-skip {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 200;
+  transform: translateY(-160%);
+  background: var(--accent);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  transition: transform 0.2s ease;
+}
+.nx-skip:focus { transform: none; }
 .nx-skelbar {
   background: linear-gradient(
     90deg,

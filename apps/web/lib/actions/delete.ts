@@ -2,6 +2,22 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { auditar } from "@/lib/audit";
+
+const LABELS: Record<string, string> = {
+  clients: "Cliente",
+  leads: "Negócio",
+  projects: "Obra",
+  finance_entries: "Lançamento",
+  budgets: "Orçamento",
+  tasks: "Tarefa",
+  events: "Evento",
+};
+function nomeDe(row: Record<string, unknown> | null | undefined): string | null {
+  if (!row) return null;
+  const v = row.nome ?? row.titulo ?? row.descricao ?? row.cliente;
+  return v == null ? null : String(v);
+}
 
 /**
  * Exclusão genérica de registros. Só permite tabelas de dados do dia a dia
@@ -53,6 +69,7 @@ export async function excluirComUndo(formData: FormData): Promise<ExcluirState &
   const { error } = await supabase.from(tabela).delete().eq("id", id);
   if (error) return { error: error.message };
 
+  await auditar({ acao: "Excluiu", entidade: LABELS[tabela], alvo: nomeDe(row as Record<string, unknown>) });
   revalidatePath(path);
   return { ok: true, row: (row ?? undefined) as Record<string, unknown> | undefined };
 }
@@ -74,6 +91,7 @@ export async function restaurarRegistro(formData: FormData): Promise<ExcluirStat
   const { error } = await supabase.from(tabela).insert(dados as never);
   if (error) return { error: error.message };
 
+  await auditar({ acao: "Restaurou", entidade: LABELS[tabela], alvo: nomeDe(dados) });
   revalidatePath(path);
   return { ok: true };
 }

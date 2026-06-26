@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { auditar } from "@/lib/audit";
 
 export type FormState = { error?: string; ok?: boolean };
 
@@ -35,6 +36,7 @@ export async function criarLancamento(
   });
 
   if (error) return { error: error.message };
+  await auditar({ acao: "Criou", entidade: "Lançamento", alvo: descricao });
   revalidatePath("/financeiro");
   return { ok: true };
 }
@@ -67,6 +69,7 @@ export async function editarLancamento(
     .eq("id", id);
 
   if (error) return { error: error.message };
+  await auditar({ acao: "Editou", entidade: "Lançamento", alvo: descricao });
   revalidatePath("/financeiro");
   return { ok: true };
 }

@@ -22,6 +22,7 @@ export default async function AppLayout({
 
   return (
     <div className="flex min-h-screen">
+      <a href="#conteudo" className="nx-skip">Pular para o conteúdo</a>
       <AppSidebar email={user.email ?? "conta@nexflow"} plan={ent.plan} />
 
       <main className="min-w-0 flex-1 bg-[var(--bg)]">
@@ -32,7 +33,9 @@ export default async function AppLayout({
             Cobrança.
           </div>
         )}
-        <RouteTransition>{children}</RouteTransition>
+        <div id="conteudo" tabIndex={-1} className="outline-none">
+          <RouteTransition>{children}</RouteTransition>
+        </div>
       </main>
       <CommandPalette />
       <Toaster />

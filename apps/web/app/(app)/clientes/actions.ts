@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { auditar } from "@/lib/audit";
 
 export type FormState = { error?: string; ok?: boolean };
 
@@ -28,6 +29,7 @@ export async function criarCliente(
   });
 
   if (error) return { error: error.message };
+  await auditar({ acao: "Criou", entidade: "Cliente", alvo: nome });
   revalidatePath("/clientes");
   return { ok: true };
 }
@@ -56,6 +58,7 @@ export async function editarCliente(
     .eq("id", id);
 
   if (error) return { error: error.message };
+  await auditar({ acao: "Editou", entidade: "Cliente", alvo: nome });
   revalidatePath("/clientes");
   return { ok: true };
 }

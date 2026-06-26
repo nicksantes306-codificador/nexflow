@@ -57,7 +57,7 @@ export function MobileNav({ plan }: { plan: string }) {
           type="button"
           onClick={() => setOpen(true)}
           aria-label="Abrir menu"
-          className="grid h-9 w-9 place-items-center rounded-lg border border-[var(--border)] text-[var(--text)] transition hover:bg-[var(--bg2)]"
+          className="grid h-10 w-10 place-items-center rounded-lg border border-[var(--border)] text-[var(--text)] transition hover:bg-[var(--bg2)]"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" style={{ width: 18, height: 18 }}><path d="M3 6h18M3 12h18M3 18h18" /></svg>
         </button>
@@ -69,7 +69,7 @@ export function MobileNav({ plan }: { plan: string }) {
           type="button"
           onClick={() => window.dispatchEvent(new Event("nexflow-command"))}
           aria-label="Buscar"
-          className="ml-auto grid h-9 w-9 place-items-center rounded-lg border border-[var(--border)] text-[var(--muted)] transition hover:bg-[var(--bg2)]"
+          className="ml-auto grid h-10 w-10 place-items-center rounded-lg border border-[var(--border)] text-[var(--muted)] transition hover:bg-[var(--bg2)]"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" style={{ width: 17, height: 17 }}><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
         </button>

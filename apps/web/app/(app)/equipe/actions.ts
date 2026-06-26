@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { auditar } from "@/lib/audit";
 
 export type ConviteState = { ok?: boolean; error?: string };
 
@@ -36,6 +37,7 @@ export async function convidarMembro(
   const { error } = await supabase.from("invites").insert({ tenant_id: tenant, email, role });
   if (error) return { error: error.message };
 
+  await auditar({ acao: "Convidou", entidade: "Pessoa", alvo: email });
   revalidatePath("/equipe");
   return { ok: true };
 }

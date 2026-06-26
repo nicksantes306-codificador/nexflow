@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { auditar } from "@/lib/audit";
 
 export type FormState = { error?: string; ok?: boolean };
 
@@ -36,6 +37,7 @@ export async function criarOrcamento(
   });
 
   if (error) return { error: error.message };
+  await auditar({ acao: "Criou", entidade: "Orçamento", alvo: titulo });
   revalidatePath("/orcamentos");
   return { ok: true };
 }
@@ -68,6 +70,7 @@ export async function editarOrcamento(
     .eq("id", id);
 
   if (error) return { error: error.message };
+  await auditar({ acao: "Editou", entidade: "Orçamento", alvo: titulo });
   revalidatePath("/orcamentos");
   return { ok: true };
 }

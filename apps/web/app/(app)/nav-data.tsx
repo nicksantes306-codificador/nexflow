@@ -18,6 +18,7 @@ export const NAV_ICONS = {
   spark: <svg className="ic" viewBox="0 0 24 24"><path d="M12 3l1.9 5.6L19.5 10l-5.6 1.4L12 17l-1.9-5.6L4.5 10l5.6-1.4z" /><path d="M19 4v3M20.5 5.5h-3" /></svg>,
   zap: <svg className="ic" viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" /></svg>,
   chart: <svg className="ic" viewBox="0 0 24 24"><path d="M3 3v18h18" /><rect x="7" y="11" width="3" height="6" rx="1" /><rect x="12" y="7" width="3" height="10" rx="1" /><rect x="17" y="13" width="3" height="4" rx="1" /></svg>,
+  history: <svg className="ic" viewBox="0 0 24 24"><path d="M3 3v5h5" /><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8" /><path d="M12 7v5l4 2" /></svg>,
 };
 
 export const PRINCIPAL: NavItemData[] = [
@@ -39,6 +40,7 @@ export const INTELIGENCIA: NavItemData[] = [
 
 export const CONTA: NavItemData[] = [
   { id: "equipe", label: "Equipe", icon: NAV_ICONS.users, desc: "Convide e gerencie as pessoas da sua empresa" },
+  { id: "historico", label: "Histórico", icon: NAV_ICONS.history, desc: "Tudo que foi criado, editado e excluído" },
   { id: "empresa", label: "Minha empresa", icon: NAV_ICONS.building, desc: "Dados da sua empresa (CNPJ, endereço…)" },
   { id: "planos", label: "Plano e pagamento", icon: NAV_ICONS.card, desc: "Sua assinatura e faturas" },
   { id: "importar", label: "Importar dados", icon: NAV_ICONS.upload, desc: "Trazer dados de uma planilha ou do sistema antigo" },
