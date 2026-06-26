@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { money } from "@/lib/format";
@@ -17,6 +17,17 @@ const PERIODOS = [
 function abrirBusca() {
   window.dispatchEvent(new Event("nexflow-command"));
 }
+
+// Painéis secundários que o usuário pode mostrar/ocultar e reordenar.
+const PANEIS_INFO = [
+  { id: "obras", titulo: "Obras em andamento" },
+  { id: "funil", titulo: "Funil de vendas" },
+  { id: "equipes", titulo: "Equipes nas obras" },
+  { id: "avisos", titulo: "Avisos importantes" },
+];
+const ORDEM_PADRAO = PANEIS_INFO.map((p) => p.id);
+const EyeOn = <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" style={{ width: 16, height: 16 }}><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" /><circle cx="12" cy="12" r="3" /></svg>;
+const EyeOff = <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" style={{ width: 16, height: 16 }}><path d="M9.9 4.2A9.8 9.8 0 0 1 12 4c6.5 0 10 7 10 7a13 13 0 0 1-2.2 3M6.1 6.1A13 13 0 0 0 2 11s3.5 7 10 7a9.5 9.5 0 0 0 3.9-.8" /><path d="m3 3 18 18M10 10a2.8 2.8 0 0 0 4 4" /></svg>;
 
 /* ---------- formatadores ---------- */
 function brCompact(n: number): string {
@@ -147,6 +158,37 @@ export function DashboardClient({ data, periodo, nome }: { data: DashData; perio
     setSaud(h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite");
   }, []);
   const primeiroNome = (nome || "").trim().split(/\s+/)[0] ?? "";
+
+  // Personalização do painel (mostrar/ocultar e reordenar) — salva por dispositivo.
+  const [cfg, setCfg] = useState<{ ordem: string[]; ocultos: string[] }>({ ordem: ORDEM_PADRAO, ocultos: [] });
+  const [editando, setEditando] = useState(false);
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("nexflow-dash");
+      if (!raw) return;
+      const p = JSON.parse(raw);
+      const ordem = Array.isArray(p.ordem)
+        ? [...new Set([...p.ordem.filter((x: string) => ORDEM_PADRAO.includes(x)), ...ORDEM_PADRAO])]
+        : ORDEM_PADRAO;
+      const ocultos = Array.isArray(p.ocultos) ? p.ocultos.filter((x: string) => ORDEM_PADRAO.includes(x)) : [];
+      setCfg({ ordem, ocultos });
+    } catch {}
+  }, []);
+  function salvarCfg(next: { ordem: string[]; ocultos: string[] }) {
+    setCfg(next);
+    try { localStorage.setItem("nexflow-dash", JSON.stringify(next)); } catch {}
+  }
+  function togglePainel(id: string) {
+    salvarCfg({ ...cfg, ocultos: cfg.ocultos.includes(id) ? cfg.ocultos.filter((x) => x !== id) : [...cfg.ocultos, id] });
+  }
+  function moverPainel(id: string, dir: -1 | 1) {
+    const i = cfg.ordem.indexOf(id);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= cfg.ordem.length) return;
+    const ordem = [...cfg.ordem];
+    [ordem[i], ordem[j]] = [ordem[j], ordem[i]];
+    salvarCfg({ ...cfg, ordem });
+  }
   useEffect(() => {
     const upd = () => {
       const d = new Date();
@@ -172,6 +214,76 @@ export function DashboardClient({ data, periodo, nome }: { data: DashData; perio
     { label: "Obras ativas", value: data.obrasAtivas, format: (n) => String(Math.round(n)), icon: ICON.obra, sub: `${data.obrasCriticas} precisam de atenção`, delta: data.demo ? { v: "+3", up: true } : undefined },
     { label: "Taxa de fechamento", value: data.conversao, format: (n) => Math.round(n) + "%", icon: ICON.conv, sub: "leads que viraram negócio", delta: data.demo ? { v: "+4 p.p.", up: true } : undefined },
   ];
+
+  const PAINEIS: Record<string, React.ReactNode> = {
+    obras: (
+      <div className="card c-side reveal" style={{ ["--i" as string]: 5 }}>
+        <div className="skel"><b style={{ width: "50%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /></div>
+        <div className="hdr">
+          <div><h3>Obras em andamento</h3><div className="mut">{data.obrasAtivas} em andamento · {data.obrasCriticas} precisam de atenção</div></div>
+          <Link href="/projetos" className="pill ghost">Ver todas</Link>
+        </div>
+        <div style={{ marginTop: 6 }}>
+          {data.obras.map((o, i) => (
+            <div className="obra" key={o.nome + i}>
+              <div className="l1"><div><b>{o.nome}</b><small>{o.cli}</small></div><span className="pc">{o.pc}%</span></div>
+              <div className={`bar ${o.cls}`}><i style={{ ["--w" as string]: `${o.pc}%` }} /></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    ),
+    funil: (
+      <div className="card c-pipe reveal" style={{ ["--i" as string]: 6 }}>
+        <div className="skel"><b style={{ width: "45%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /></div>
+        <div className="hdr">
+          <div><h3>Funil de vendas</h3><div className="mut">{data.oportunidades} negócios em aberto · {brCompact(data.pipelineValor)} em negociação</div></div>
+          <Link href="/crm" className="pill ghost">Abrir CRM</Link>
+        </div>
+        <div style={{ marginTop: 4, paddingBottom: 8 }}>
+          {data.funil.map((f) => (
+            <div className="stage" key={f.label}>
+              <span className="nm">{f.label}</span>
+              <div className="track">
+                <i style={{ ["--w" as string]: `${Math.max((f.count / maxFunil) * 100, 6)}%` }} />
+                <span className="vv">{f.valor > 0 ? brCompact(f.valor) : money(0)}</span>
+              </div>
+              <span className="ct">{f.count}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    ),
+    equipes: (
+      <div className="card c-team reveal" style={{ ["--i" as string]: 7 }}>
+        <div className="skel"><b style={{ width: "50%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /></div>
+        <div className="hdr"><div><h3>Equipes nas obras</h3><div className="mut">{data.responsaveis.length} em obras ativas</div></div></div>
+        <div style={{ marginTop: 4 }}>
+          {data.responsaveis.map((e, i) => (
+            <div className="team" key={e.nome + i}>
+              <div className="av">{e.av}</div>
+              <div className="nm"><b>{e.nome}</b><small>{e.obra}</small></div>
+              <span className={`st ${e.st}`}><span className="d" />{e.lbl}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    ),
+    avisos: (
+      <div className="card c-alert reveal" style={{ ["--i" as string]: 8 }}>
+        <div className="skel"><b style={{ width: "55%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /></div>
+        <div className="hdr"><div><h3>Avisos importantes</h3><div className="mut">{data.alertas.length} {data.alertas.length === 1 ? "item precisa" : "itens precisam"} de atenção</div></div></div>
+        <div style={{ marginTop: 4 }}>
+          {data.alertas.map((a, i) => (
+            <div className={`alert ${a.cls}`} key={a.txt + i}>
+              <div className="ico">{ALERT_ICON[a.cls]}</div>
+              <div className="tx"><b>{a.txt}</b><small>{a.meta}</small></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    ),
+  };
 
   return (
     <div className="nxdash">
@@ -213,14 +325,51 @@ export function DashboardClient({ data, periodo, nome }: { data: DashData; perio
               {data.demo && " (dados de exemplo — cadastre seus clientes, obras e contas para ver os reais)"}
             </p>
           </div>
-          <div className="seg">
-            {PERIODOS.map((p) => (
-              <button key={p.id} className={periodo === p.id ? "on" : ""} onClick={() => router.push(`/dashboard?periodo=${p.id}`)}>{p.label}</button>
-            ))}
+          <div className="flex flex-wrap items-center gap-2.5">
+            <div className="seg">
+              {PERIODOS.map((p) => (
+                <button key={p.id} className={periodo === p.id ? "on" : ""} onClick={() => router.push(`/dashboard?periodo=${p.id}`)}>{p.label}</button>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => setEditando((v) => !v)}
+              title="Mostrar, ocultar e reordenar os blocos do painel"
+              className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-[13px] font-semibold transition ${editando ? "border-[var(--accent)] text-[var(--accent)]" : "border-[var(--border)] text-[var(--muted)] hover:text-[var(--text)]"}`}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" style={{ width: 15, height: 15 }}><line x1="4" y1="21" x2="4" y2="14" /><line x1="4" y1="10" x2="4" y2="3" /><line x1="12" y1="21" x2="12" y2="12" /><line x1="12" y1="8" x2="12" y2="3" /><line x1="20" y1="21" x2="20" y2="16" /><line x1="20" y1="12" x2="20" y2="3" /><line x1="1" y1="14" x2="7" y2="14" /><line x1="9" y1="8" x2="15" y2="8" /><line x1="17" y1="16" x2="23" y2="16" /></svg>
+              Personalizar
+            </button>
           </div>
         </div>
 
         <div className="grid">
+          {editando && (
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4" style={{ gridColumn: "1 / -1", boxShadow: "var(--shadow)" }}>
+              <div className="mb-2 flex items-center justify-between">
+                <b className="text-sm">Personalizar painel</b>
+                <button type="button" onClick={() => salvarCfg({ ordem: ORDEM_PADRAO, ocultos: [] })} className="text-[12px] font-semibold text-[var(--muted)] transition hover:text-[var(--accent)]">Restaurar padrão</button>
+              </div>
+              {cfg.ordem.map((id, idx) => {
+                const info = PANEIS_INFO.find((p) => p.id === id);
+                const visivel = !cfg.ocultos.includes(id);
+                return (
+                  <div key={id} className={`flex items-center gap-2.5 py-2 ${idx ? "border-t border-[var(--border)]" : ""}`}>
+                    <button type="button" onClick={() => togglePainel(id)} aria-label={visivel ? "Ocultar bloco" : "Mostrar bloco"} className={`grid h-8 w-8 place-items-center rounded-lg border border-[var(--border)] transition hover:bg-[var(--bg2)] ${visivel ? "text-[var(--accent)]" : "text-[var(--muted)]"}`}>
+                      {visivel ? EyeOn : EyeOff}
+                    </button>
+                    <span className={`flex-1 text-[13.5px] font-semibold ${visivel ? "" : "text-[var(--muted)] line-through"}`}>{info?.titulo}</span>
+                    <button type="button" onClick={() => moverPainel(id, -1)} disabled={idx === 0} aria-label="Mover para cima" className="grid h-8 w-8 place-items-center rounded-lg border border-[var(--border)] text-[var(--muted)] transition hover:bg-[var(--bg2)] disabled:opacity-30">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 15, height: 15 }}><path d="m18 15-6-6-6 6" /></svg>
+                    </button>
+                    <button type="button" onClick={() => moverPainel(id, 1)} disabled={idx === cfg.ordem.length - 1} aria-label="Mover para baixo" className="grid h-8 w-8 place-items-center rounded-lg border border-[var(--border)] text-[var(--muted)] transition hover:bg-[var(--bg2)] disabled:opacity-30">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 15, height: 15 }}><path d="m6 9 6 6 6-6" /></svg>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
           {KPIS.map((k, i) => (
             <div className="card kpi lift reveal" style={{ ["--i" as string]: i }} key={k.label}>
               <div className="skel"><b style={{ width: "55%" }} /><b style={{ width: "80%", height: 26 }} /><b style={{ width: "40%" }} /></div>
@@ -251,68 +400,11 @@ export function DashboardClient({ data, periodo, nome }: { data: DashData; perio
             <div className="chartbox"><RevChart serie={data.rev} /></div>
           </div>
 
-          <div className="card c-side reveal" style={{ ["--i" as string]: 5 }}>
-            <div className="skel"><b style={{ width: "50%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /></div>
-            <div className="hdr">
-              <div><h3>Obras em andamento</h3><div className="mut">{data.obrasAtivas} em andamento · {data.obrasCriticas} precisam de atenção</div></div>
-              <Link href="/projetos" className="pill ghost">Ver todas</Link>
-            </div>
-            <div style={{ marginTop: 6 }}>
-              {data.obras.map((o, i) => (
-                <div className="obra" key={o.nome + i}>
-                  <div className="l1"><div><b>{o.nome}</b><small>{o.cli}</small></div><span className="pc">{o.pc}%</span></div>
-                  <div className={`bar ${o.cls}`}><i style={{ ["--w" as string]: `${o.pc}%` }} /></div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="card c-pipe reveal" style={{ ["--i" as string]: 6 }}>
-            <div className="skel"><b style={{ width: "45%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /></div>
-            <div className="hdr">
-              <div><h3>Funil de vendas</h3><div className="mut">{data.oportunidades} negócios em aberto · {brCompact(data.pipelineValor)} em negociação</div></div>
-              <Link href="/crm" className="pill ghost">Abrir CRM</Link>
-            </div>
-            <div style={{ marginTop: 4, paddingBottom: 8 }}>
-              {data.funil.map((f) => (
-                <div className="stage" key={f.label}>
-                  <span className="nm">{f.label}</span>
-                  <div className="track">
-                    <i style={{ ["--w" as string]: `${Math.max((f.count / maxFunil) * 100, 6)}%` }} />
-                    <span className="vv">{f.valor > 0 ? brCompact(f.valor) : money(0)}</span>
-                  </div>
-                  <span className="ct">{f.count}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="card c-team reveal" style={{ ["--i" as string]: 7 }}>
-            <div className="skel"><b style={{ width: "50%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /></div>
-            <div className="hdr"><div><h3>Equipes nas obras</h3><div className="mut">{data.responsaveis.length} em obras ativas</div></div></div>
-            <div style={{ marginTop: 4 }}>
-              {data.responsaveis.map((e, i) => (
-                <div className="team" key={e.nome + i}>
-                  <div className="av">{e.av}</div>
-                  <div className="nm"><b>{e.nome}</b><small>{e.obra}</small></div>
-                  <span className={`st ${e.st}`}><span className="d" />{e.lbl}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="card c-alert reveal" style={{ ["--i" as string]: 8 }}>
-            <div className="skel"><b style={{ width: "55%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /></div>
-            <div className="hdr"><div><h3>Avisos importantes</h3><div className="mut">{data.alertas.length} {data.alertas.length === 1 ? "item precisa" : "itens precisam"} de atenção</div></div></div>
-            <div style={{ marginTop: 4 }}>
-              {data.alertas.map((a, i) => (
-                <div className={`alert ${a.cls}`} key={a.txt + i}>
-                  <div className="ico">{ALERT_ICON[a.cls]}</div>
-                  <div className="tx"><b>{a.txt}</b><small>{a.meta}</small></div>
-                </div>
-              ))}
-            </div>
-          </div>
+          {cfg.ordem
+            .filter((id) => !cfg.ocultos.includes(id))
+            .map((id) => (
+              <Fragment key={id}>{PAINEIS[id]}</Fragment>
+            ))}
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/app/login/actions";
@@ -12,29 +13,65 @@ export function AppSidebar({ email, plan }: { email: string; plan: string }) {
   const isActive = (id: string) =>
     pathname === `/${id}` || pathname.startsWith(`/${id}/`);
 
-  const NavItem = ({ item }: { item: NavItemData }) => (
-    <Link
-      href={`/${item.id}`}
-      title={item.desc}
-      aria-current={isActive(item.id) ? "page" : undefined}
-      className={`group relative mb-0.5 flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] font-semibold transition ${
-        isActive(item.id)
-          ? "bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] text-[var(--accent)]"
-          : "text-[var(--muted)] hover:bg-[var(--bg2)] hover:text-[var(--text)]"
-      }`}
-    >
-      {isActive(item.id) && (
-        <span className="absolute -left-3 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r bg-[var(--accent)]" />
-      )}
-      <span className="[&_.ic]:h-[18.5px] [&_.ic]:w-[18.5px]">{item.icon}</span>
-      {item.label}
-      {item.tag && (
-        <span className="ml-auto rounded-full bg-[color-mix(in_srgb,var(--accent-2)_14%,transparent)] px-2 py-0.5 text-[10px] font-bold text-[var(--accent-2)]">
-          {item.tag}
-        </span>
-      )}
-    </Link>
-  );
+  // Favoritos (atalhos no topo) — salvos por dispositivo.
+  const [favs, setFavs] = useState<string[]>([]);
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("nexflow-favoritos");
+      if (raw) setFavs(JSON.parse(raw));
+    } catch {}
+  }, []);
+  function toggleFav(id: string) {
+    setFavs((prev) => {
+      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
+      try { localStorage.setItem("nexflow-favoritos", JSON.stringify(next)); } catch {}
+      return next;
+    });
+  }
+  const TODOS = [...PRINCIPAL, ...INTELIGENCIA, ...CONTA];
+  const favItens = favs.map((id) => TODOS.find((x) => x.id === id)).filter(Boolean) as NavItemData[];
+
+  const NavItem = ({ item }: { item: NavItemData }) => {
+    const fav = favs.includes(item.id);
+    return (
+      <div className="group relative">
+        <Link
+          href={`/${item.id}`}
+          title={item.desc}
+          aria-current={isActive(item.id) ? "page" : undefined}
+          className={`relative mb-0.5 flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] font-semibold transition ${
+            isActive(item.id)
+              ? "bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] text-[var(--accent)]"
+              : "text-[var(--muted)] hover:bg-[var(--bg2)] hover:text-[var(--text)]"
+          }`}
+        >
+          {isActive(item.id) && (
+            <span className="absolute -left-3 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r bg-[var(--accent)]" />
+          )}
+          <span className="[&_.ic]:h-[18.5px] [&_.ic]:w-[18.5px]">{item.icon}</span>
+          {item.label}
+          {item.tag && (
+            <span className="ml-auto mr-5 rounded-full bg-[color-mix(in_srgb,var(--accent-2)_14%,transparent)] px-2 py-0.5 text-[10px] font-bold text-[var(--accent-2)]">
+              {item.tag}
+            </span>
+          )}
+        </Link>
+        <button
+          type="button"
+          onClick={() => toggleFav(item.id)}
+          aria-label={fav ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+          title={fav ? "Remover dos favoritos" : "Favoritar"}
+          className={`absolute right-2 top-1/2 grid h-6 w-6 -translate-y-1/2 place-items-center rounded-md transition ${
+            fav ? "text-[var(--accent-2)]" : "text-[var(--muted)] opacity-0 hover:text-[var(--accent-2)] group-hover:opacity-100"
+          }`}
+        >
+          <svg viewBox="0 0 24 24" fill={fav ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ width: 14, height: 14 }}>
+            <path d="M12 2l3 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.9 21l1.2-6.8-5-4.9 6.9-1z" />
+          </svg>
+        </button>
+      </div>
+    );
+  };
 
   return (
     <aside className="sticky top-0 hidden h-screen w-[264px] shrink-0 flex-col border-r border-[var(--border)] bg-[var(--panel)] px-4 py-5 md:flex">
@@ -72,7 +109,17 @@ export function AppSidebar({ email, plan }: { email: string; plan: string }) {
       </button>
 
       <nav className="flex-1 overflow-y-auto">
-        <p className="px-3 pb-1.5 pt-2 text-[10.5px] font-bold uppercase tracking-wider text-[var(--muted)]">
+        {favItens.length > 0 && (
+          <>
+            <p className="px-3 pb-1.5 pt-2 text-[10.5px] font-bold uppercase tracking-wider text-[var(--muted)]">
+              Favoritos
+            </p>
+            {favItens.map((m) => (
+              <NavItem key={"fav-" + m.id} item={m} />
+            ))}
+          </>
+        )}
+        <p className="px-3 pb-1.5 pt-4 text-[10.5px] font-bold uppercase tracking-wider text-[var(--muted)]">
           Principal
         </p>
         {PRINCIPAL.map((m) => (
