@@ -97,10 +97,26 @@ export function StatusBadge({ status }: { status: string }) {
   );
 }
 
-export function EmptyHint({ children }: { children: React.ReactNode }) {
+export function EmptyHint({
+  children,
+  icon,
+  title,
+}: {
+  children: React.ReactNode;
+  icon?: React.ReactNode;
+  title?: string;
+}) {
   return (
-    <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--panel)] p-10 text-center text-sm text-[var(--muted)]">
-      {children}
+    <div className="flex flex-col items-center rounded-2xl border border-dashed border-[var(--border)] bg-[var(--panel)] px-6 py-12 text-center">
+      <span className="mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-[var(--accent)] [&_svg]:h-7 [&_svg]:w-7">
+        {icon ?? (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 7l9-4 9 4-9 4-9-4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" />
+          </svg>
+        )}
+      </span>
+      {title && <p className="mb-1.5 text-[15px] font-bold text-[var(--text)]">{title}</p>}
+      <div className="max-w-md text-sm leading-relaxed text-[var(--muted)]">{children}</div>
     </div>
   );
 }

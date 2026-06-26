@@ -2,13 +2,14 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { excluirRegistro } from "@/lib/actions/delete";
+import { excluirComUndo, restaurarRegistro } from "@/lib/actions/delete";
+import { toast } from "@/components/toaster";
 
 type Props = {
   tabela: "clients" | "leads" | "projects" | "finance_entries" | "budgets" | "tasks" | "events";
   id: string;
   path: string;
-  /** Texto do confirm: "Excluir o cliente X?" */
+  /** Nome do item, mostrado no aviso: "Cliente X excluído". */
   nome?: string | null;
   className?: string;
 };
@@ -25,16 +26,40 @@ export function DeleteButton({ tabela, id, path, nome, className }: Props) {
   const router = useRouter();
 
   function onClick() {
-    const msg = nome ? `Excluir "${nome}"? Não dá para desfazer.` : "Excluir este item? Não dá para desfazer.";
-    if (!window.confirm(msg)) return;
     const fd = new FormData();
     fd.set("tabela", tabela);
     fd.set("id", id);
     fd.set("path", path);
     start(async () => {
-      const r = await excluirRegistro(fd);
-      if (r.error) window.alert(r.error);
+      const r = await excluirComUndo(fd);
+      if (r.error) {
+        toast(r.error, "erro");
+        return;
+      }
       router.refresh();
+      const rotulo = nome ? `"${nome}" excluído` : "Item excluído";
+      if (r.row) {
+        toast(rotulo, {
+          action: {
+            label: "Desfazer",
+            onClick: () => {
+              const fd2 = new FormData();
+              fd2.set("tabela", tabela);
+              fd2.set("path", path);
+              fd2.set("dados", JSON.stringify(r.row));
+              restaurarRegistro(fd2).then((res) => {
+                if (res.error) toast(res.error, "erro");
+                else {
+                  toast("Restaurado");
+                  router.refresh();
+                }
+              });
+            },
+          },
+        });
+      } else {
+        toast(rotulo);
+      }
     });
   }
 

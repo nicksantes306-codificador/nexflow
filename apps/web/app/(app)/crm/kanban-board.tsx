@@ -5,7 +5,7 @@ import type { Lead } from "@/lib/types";
 import { ESTAGIOS, ESTAGIO_COR } from "@/lib/constants";
 import { money, moneyFull, dateBR, scoreBadgeColor } from "@/lib/format";
 import { toast } from "@/components/toaster";
-import { excluirRegistro } from "@/lib/actions/delete";
+import { excluirComUndo, restaurarRegistro } from "@/lib/actions/delete";
 import { moveLead } from "./actions";
 
 function iniciais(nome: string | null): string {
@@ -59,21 +59,38 @@ export function KanbanBoard({ leads: inicial }: { leads: Lead[] }) {
   }
 
   function excluir(id: string, nome: string | null) {
-    if (!window.confirm(`Excluir o negócio "${nome ?? "sem nome"}"? Não dá para desfazer.`)) return;
     const anterior = leads;
+    const lead = leads.find((l) => l.id === id);
     setLeads((prev) => prev.filter((l) => l.id !== id));
     startTransition(async () => {
       const fd = new FormData();
       fd.set("tabela", "leads");
       fd.set("id", id);
       fd.set("path", "/crm");
-      const r = await excluirRegistro(fd);
+      const r = await excluirComUndo(fd);
       if (r?.error) {
         setLeads(anterior);
         toast("Não foi possível excluir", "erro");
-      } else {
-        toast("Negócio excluído");
+        return;
       }
+      toast(`"${nome ?? "Negócio"}" excluído`, {
+        action: {
+          label: "Desfazer",
+          onClick: () => {
+            const fd2 = new FormData();
+            fd2.set("tabela", "leads");
+            fd2.set("path", "/crm");
+            fd2.set("dados", JSON.stringify(r.row ?? lead));
+            restaurarRegistro(fd2).then((res) => {
+              if (res.error) toast(res.error, "erro");
+              else {
+                if (lead) setLeads((prev) => [...prev, lead]);
+                toast("Restaurado");
+              }
+            });
+          },
+        },
+      });
     });
   }
 

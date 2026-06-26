@@ -550,6 +550,11 @@ body {
   from { opacity: 0; transform: translateY(10px) scale(0.98); }
   to { opacity: 1; transform: none; }
 }
+.nx-drawer { animation: nx-drawerin 0.28s cubic-bezier(0.22, 0.61, 0.36, 1); }
+@keyframes nx-drawerin {
+  from { transform: translateX(-100%); }
+  to { transform: none; }
+}
 .nx-skelbar {
   background: linear-gradient(
     90deg,
@@ -561,7 +566,7 @@ body {
   animation: nx-sh 1.4s ease infinite;
 }
 @media (prefers-reduced-motion: reduce) {
-  .nx-route, .nx-toast, .nx-skelbar { animation: none; }
+  .nx-route, .nx-toast, .nx-skelbar, .nx-drawer { animation: none; }
 }
 
 @media (max-width: 1180px) {
