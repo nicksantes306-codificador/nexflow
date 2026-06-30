@@ -23,10 +23,18 @@ const NAV = [
   { label: "Importar dados", href: "/importar", kw: "migrar" },
 ];
 
-type Item = { label: string; sub?: string; href: string; tipo?: string };
+type Item = { label: string; sub?: string; href?: string; tipo?: string; run?: () => void };
 
 function norm(s: string) {
   return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+}
+
+function alternarTema() {
+  try {
+    const prox = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = prox;
+    localStorage.setItem("nexflow-theme", prox);
+  } catch {}
 }
 
 export function CommandPalette() {
@@ -37,6 +45,21 @@ export function CommandPalette() {
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
+  const acaoItens = useMemo<Item[]>(() => {
+    const base = [
+      { label: "Novo cliente", kw: "adicionar cadastrar", run: () => router.push("/clientes?novo=1") },
+      { label: "Nova obra", kw: "projeto servico", run: () => router.push("/projetos?novo=1") },
+      { label: "Novo orçamento", kw: "proposta", run: () => router.push("/orcamentos?novo=1") },
+      { label: "Novo lançamento", kw: "conta receita despesa", run: () => router.push("/financeiro?novo=1") },
+      { label: "Nova tarefa", kw: "", run: () => router.push("/tarefas?novo=1") },
+      { label: "Novo evento", kw: "agendar reuniao", run: () => router.push("/agenda?novo=1") },
+      { label: "Alternar tema claro/escuro", kw: "tema dark light modo escuro claro", run: alternarTema },
+    ];
+    const n = norm(q.trim());
+    const lista = n ? base.filter((a) => norm(a.label + " " + a.kw).includes(n)) : base;
+    return lista.map((a) => ({ label: a.label, tipo: a.label.startsWith("Alternar") ? "Comando" : "Criar", run: a.run }));
+  }, [q, router]);
+
   const navItens = useMemo<Item[]>(() => {
     const n = norm(q.trim());
     if (!n) return NAV.map((x) => ({ label: x.label, href: x.href, tipo: "Ir para" }));
@@ -44,8 +67,8 @@ export function CommandPalette() {
   }, [q]);
 
   const itens = useMemo<Item[]>(
-    () => [...navItens, ...hits.map((h) => ({ label: h.label, sub: h.sub, href: h.href, tipo: h.tipo }))],
-    [navItens, hits],
+    () => [...acaoItens, ...navItens, ...hits.map((h) => ({ label: h.label, sub: h.sub, href: h.href, tipo: h.tipo }))],
+    [acaoItens, navItens, hits],
   );
 
   // abre com ⌘K / Ctrl+K (e via evento custom de qualquer botão)
@@ -103,7 +126,8 @@ export function CommandPalette() {
     const alvo = it ?? itens[active];
     if (!alvo) return;
     setOpen(false);
-    router.push(alvo.href);
+    if (alvo.run) alvo.run();
+    else if (alvo.href) router.push(alvo.href);
   };
 
   return (

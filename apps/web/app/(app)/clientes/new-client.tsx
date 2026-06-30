@@ -35,6 +35,13 @@ export function NewClientForm() {
   const [state, action, pending] = useActionState<FormState, FormData>(criarCliente, {});
   const router = useRouter();
 
+  // Abre sozinho quando vem do ⌘K (rota com ?novo=1).
+  useEffect(() => {
+    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("novo") === "1") {
+      setAberto(true);
+    }
+  }, []);
+
   useEffect(() => {
     if (state.ok) {
       toast("Cliente cadastrado");
