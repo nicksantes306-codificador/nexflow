@@ -7,7 +7,9 @@ import type { ChatMsg } from "@/lib/ai/nexflow-ai";
 const SUGESTOES = [
   "Resumo das vendas",
   "O que fazer hoje?",
-  "Obras com problema",
+  "Gerar uma proposta",
+  "Escrever e-mail de follow-up",
+  "Checklist de obra",
   "Como está o financeiro?",
 ];
 
@@ -53,7 +55,7 @@ export function AiChat({
         </span>
         <div className="flex-1">
           <h1 className="text-[19px] font-extrabold tracking-tight">NEXFLOW AI</h1>
-          <p className="text-[12px] text-[var(--muted)]">Pergunte e ele responde sobre suas vendas, obras e finanças</p>
+          <p className="text-[12px] text-[var(--muted)]">Pergunte sobre vendas, obras e finanças — ou peça para criar proposta, e-mail e checklist</p>
         </div>
         <span
           className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold"
@@ -78,7 +80,7 @@ export function AiChat({
               </span>
               <p className="mt-4 text-[15px] font-bold">Como posso ajudar?</p>
               <p className="mt-1 text-[13px] text-[var(--muted)]">
-                Pergunte sobre suas vendas, obras, finanças ou o que fazer primeiro.
+                Pergunte sobre vendas, obras e finanças — ou peça para <strong className="text-[var(--text)]">criar</strong> uma proposta, um e-mail ou um checklist.
               </p>
               <div className="mt-5 flex flex-wrap justify-center gap-2">
                 {SUGESTOES.map((s) => (

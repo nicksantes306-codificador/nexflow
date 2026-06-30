@@ -50,4 +50,19 @@ describe("nexflowLocalAI", () => {
     const r = nexflowLocalAI("olá", d);
     expect(r).toContain("Resumo da empresa");
   });
+
+  it("gera uma proposta quando pedem", () => {
+    const r = nexflowLocalAI("gere uma proposta para um cliente", d);
+    expect(r).toContain("PROPOSTA COMERCIAL");
+  });
+
+  it("gera um e-mail de follow-up", () => {
+    const r = nexflowLocalAI("escreva um e-mail de follow-up", d);
+    expect(r).toContain("Acompanhamento da proposta");
+  });
+
+  it("gera um checklist de obra", () => {
+    const r = nexflowLocalAI("me dá um checklist de obra", d);
+    expect(r).toContain("ART/RRT");
+  });
 });

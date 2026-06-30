@@ -41,6 +41,7 @@ const SISTEMA = `Você é a NEXFLOW AI, assistente do NEXFLOW — um CRM/ERP par
 Responda SEMPRE em português do Brasil, de forma curta, objetiva e prática (no máximo ~120 palavras, salvo se pedirem detalhe).
 Use SOMENTE os números dos "DADOS DO PAINEL" abaixo quando citar valores — nunca invente cifras.
 Use linguagem simples e direta, como quem explica para o dono de uma empresa de engenharia de 50 anos: evite jargão técnico e termos em inglês (diga "negócio em aberto" em vez de "lead", "faturamento" em vez de "receita", "fechamento" em vez de "conversão"). Pode usar termos de engenharia (ART, SPDA, subestação).
+Você também CRIA quando pedirem: propostas comerciais, e-mails e mensagens para clientes, listas de tarefas e checklist de obra, e resumos (financeiro, do dia). Ao criar, entregue um texto pronto para copiar; use [campos] entre colchetes onde faltar informação — NUNCA invente nomes de clientes, valores ou dados que não estejam nos DADOS DO PAINEL.
 Quando fizer sentido, termine com uma sugestão de próxima ação começando por "Sugestão:".
 Quando listar itens, use marcadores com "- ".`;
 
@@ -71,6 +72,18 @@ function norm(s: string): string {
 export function nexflowLocalAI(perguntaRaw: string, d: DashData): string {
   const q = norm(perguntaRaw);
   const has = (...ks: string[]) => ks.some((k) => q.includes(k));
+  const hoje = new Date().toLocaleDateString("pt-BR");
+
+  // ── Geração de conteúdo (a IA "cria") ──
+  if (has("proposta")) {
+    return `Modelo de proposta comercial (preencha os [campos]):\n\nPROPOSTA COMERCIAL — [Sua empresa]\nCliente: [Nome do cliente]\nData: ${hoje}\n\nObjeto: [serviço — ex.: montagem de painel CCM, SPDA, subestação]\n\nEscopo:\n- [item 1]\n- [item 2]\n- [item 3]\n\nPrazo: [ex.: 30 dias]  ·  Valor total: [R$ ____]\nPagamento: [ex.: 50% de entrada, 50% na entrega]  ·  Validade: 15 dias.\nInclui ART/RRT e garantia conforme norma.\n\nSugestão: para gerar a proposta com itens, BDI e PDF, use a tela Orçamentos.`;
+  }
+  if (has("e-mail", "email", "mensagem", "follow", "whatsapp", "cobranca", "cobrança")) {
+    return `Modelo de e-mail/mensagem (ajuste os [campos]):\n\nAssunto: Acompanhamento da proposta — [Sua empresa]\n\nOlá [Nome], tudo bem?\nPassando para saber se conseguiu avaliar a proposta de [serviço/obra]. Fico à disposição para ajustar escopo, prazo ou condições de pagamento — e, se ajudar, marco uma visita técnica esta semana.\n\nAbraço,\n[Seu nome] — [Sua empresa] · [telefone]\n\nSugestão: envie o follow-up para os negócios parados em "Proposta" e "Negociação".`;
+  }
+  if (has("checklist", "passo a passo") || (has("tarefa", "etapa", "passos") && has("obra", "projeto"))) {
+    return `Checklist de uma obra elétrica (início → entrega):\n\n1. Comercial: orçamento aprovado e contrato assinado.\n2. Projeto: projeto elétrico e ART/RRT emitida (CREA/CFT).\n3. Materiais: lista, compra e recebimento.\n4. Execução: equipe, cronograma e diário de obra.\n5. Segurança: NR-10, aterramento e SPDA conforme norma.\n6. Medição: medição físico-financeira e faturamento por etapa.\n7. Entrega: testes, comissionamento e termo de entrega.\n\nSugestão: crie essas etapas como tarefas na tela Tarefas para acompanhar a obra.`;
+  }
 
   if (has("pipeline", "funil", "oportunid", "etapa", "venda")) {
     const maior = [...d.funil].sort((a, b) => b.count - a.count)[0];
