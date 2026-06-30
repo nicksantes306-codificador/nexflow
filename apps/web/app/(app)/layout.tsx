@@ -19,6 +19,15 @@ export default async function AppLayout({
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  // 2FA: conta com fator verificado precisa completar o código (aal2) antes de
+  // usar o sistema. Só afeta quem ativou 2FA (nextLevel aal2) — falha aberta.
+  let precisaMfa = false;
+  try {
+    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    precisaMfa = !!aal && aal.currentLevel === "aal1" && aal.nextLevel === "aal2";
+  } catch {}
+  if (precisaMfa) redirect("/mfa");
+
   const [ent, notificacoes] = await Promise.all([getEntitlements(), buscarNotificacoes()]);
 
   return (

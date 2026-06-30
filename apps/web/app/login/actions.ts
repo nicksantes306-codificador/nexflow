@@ -16,6 +16,21 @@ export async function login(
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return { error: traduzErro(error.message) };
 
+  // Histórico de login (mesmo client, já com a sessão nova).
+  try {
+    const { data: tenant } = await supabase.rpc("current_tenant_id");
+    const { data: { user } } = await supabase.auth.getUser();
+    if (tenant) await supabase.from("audit_log").insert({ tenant_id: tenant, user_id: user?.id ?? null, acao: "Entrou", entidade: "Conta", alvo: email });
+  } catch {}
+
+  // Se a conta tem 2FA ativo, exige o código antes de liberar o sistema.
+  let precisaMfa = false;
+  try {
+    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    precisaMfa = !!aal && aal.currentLevel === "aal1" && aal.nextLevel === "aal2";
+  } catch {}
+  if (precisaMfa) redirect("/mfa");
+
   redirect("/dashboard");
 }
 

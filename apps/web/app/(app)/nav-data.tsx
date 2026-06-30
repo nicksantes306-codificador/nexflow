@@ -19,6 +19,7 @@ export const NAV_ICONS = {
   zap: <svg className="ic" viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" /></svg>,
   chart: <svg className="ic" viewBox="0 0 24 24"><path d="M3 3v18h18" /><rect x="7" y="11" width="3" height="6" rx="1" /><rect x="12" y="7" width="3" height="10" rx="1" /><rect x="17" y="13" width="3" height="4" rx="1" /></svg>,
   history: <svg className="ic" viewBox="0 0 24 24"><path d="M3 3v5h5" /><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8" /><path d="M12 7v5l4 2" /></svg>,
+  shield: <svg className="ic" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><path d="m9 12 2 2 4-4" /></svg>,
 };
 
 export const PRINCIPAL: NavItemData[] = [
@@ -41,6 +42,7 @@ export const INTELIGENCIA: NavItemData[] = [
 export const CONTA: NavItemData[] = [
   { id: "equipe", label: "Equipe", icon: NAV_ICONS.users, desc: "Convide e gerencie as pessoas da sua empresa" },
   { id: "historico", label: "Histórico", icon: NAV_ICONS.history, desc: "Tudo que foi criado, editado e excluído" },
+  { id: "seguranca", label: "Segurança", icon: NAV_ICONS.shield, desc: "Verificação em duas etapas (2FA) e acessos" },
   { id: "empresa", label: "Minha empresa", icon: NAV_ICONS.building, desc: "Dados da sua empresa (CNPJ, endereço…)" },
   { id: "planos", label: "Plano e pagamento", icon: NAV_ICONS.card, desc: "Sua assinatura e faturas" },
   { id: "importar", label: "Importar dados", icon: NAV_ICONS.upload, desc: "Trazer dados de uma planilha ou do sistema antigo" },
