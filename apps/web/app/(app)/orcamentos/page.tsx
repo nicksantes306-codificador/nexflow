@@ -1,20 +1,11 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import type { Budget, Client } from "@/lib/types";
-import { PageHeader, TableShell, EmptyHint, StatusBadge, KpiCard } from "@/components/ui";
+import { PageHeader, EmptyHint, KpiCard } from "@/components/ui";
 import { QuickCreate, type Field } from "@/components/quick-create";
-import { DeleteButton } from "@/components/delete-button";
-import { EditRecord } from "@/components/edit-record";
 import { ExportButton } from "@/components/export-button";
-import { moneyFull, dateBR } from "@/lib/format";
-import { criarOrcamento, editarOrcamento } from "./actions";
-
-const STATUS_ORC = [
-  { value: "rascunho", label: "Rascunho" },
-  { value: "enviado", label: "Enviado" },
-  { value: "aprovado", label: "Aprovado" },
-  { value: "recusado", label: "Recusado" },
-];
+import { OrcTable } from "./orc-table";
+import { moneyFull } from "@/lib/format";
+import { criarOrcamento } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +23,6 @@ export default async function OrcamentosPage() {
   ]);
   const orcamentos = (orc ?? []) as Budget[];
   const clientes = (cli ?? []) as Pick<Client, "id" | "nome">[];
-  const nomePorId = new Map(clientes.map((c) => [c.id, c.nome]));
 
   const total = orcamentos.reduce((a, o) => a + Number(o.valor_total), 0);
   const aprovados = orcamentos.filter((o) => o.status === "aprovado").length;
@@ -69,47 +59,9 @@ export default async function OrcamentosPage() {
       )}
 
       {orcamentos.length === 0 ? (
-        <EmptyHint>Nenhum orçamento ainda. Crie o primeiro e gere o PDF (3 templates + ART).</EmptyHint>
+        <EmptyHint title="Nenhum orçamento ainda">Crie o primeiro e gere o PDF (3 modelos + ART).</EmptyHint>
       ) : (
-        <TableShell
-          head={
-            <tr>
-              <th className="px-4 py-3">Nº</th>
-              <th className="px-4 py-3">Título</th>
-              <th className="px-4 py-3">Cliente</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Validade</th>
-              <th className="px-4 py-3 text-right">Valor</th>
-              <th className="w-10 px-4 py-3"></th>
-            </tr>
-          }
-        >
-          {orcamentos.map((o) => (
-            <tr key={o.id} className="transition hover:bg-[var(--bg2)]">
-              <td className="px-4 py-3">
-                <span className="rounded-md bg-[var(--bg2)] px-2 py-0.5 font-mono text-[11px] text-[var(--muted)]">{o.numero ?? "—"}</span>
-              </td>
-              <td className="px-4 py-3 font-semibold">
-                <Link href={`/orcamentos/${o.id}`} className="transition hover:text-[var(--accent)]">{o.titulo}</Link>
-              </td>
-              <td className="px-4 py-3 text-[var(--muted)]">{o.client_id ? (nomePorId.get(o.client_id) ?? "—") : "—"}</td>
-              <td className="px-4 py-3"><StatusBadge status={o.status} /></td>
-              <td className="px-4 py-3 text-[var(--muted)]">{dateBR(o.validade)}</td>
-              <td className="px-4 py-3 text-right font-bold text-[var(--accent)]" style={{ fontVariantNumeric: "tabular-nums" }}>{moneyFull(Number(o.valor_total))}</td>
-              <td className="px-2 py-3">
-                <div className="flex items-center justify-end gap-1.5">
-                  <EditRecord
-                    action={editarOrcamento}
-                    titulo="Editar orçamento"
-                    fields={[...campos, { name: "status", label: "Status", type: "select", options: STATUS_ORC }]}
-                    initial={{ id: o.id, titulo: o.titulo, client_id: o.client_id ?? "", valor_total: o.valor_total, validade: o.validade ?? "", status: o.status }}
-                  />
-                  <DeleteButton tabela="budgets" id={o.id} path="/orcamentos" nome={o.titulo} />
-                </div>
-              </td>
-            </tr>
-          ))}
-        </TableShell>
+        <OrcTable linhas={orcamentos} clientes={clientes} />
       )}
     </div>
   );

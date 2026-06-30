@@ -555,6 +555,11 @@ body {
   from { transform: translateX(-100%); }
   to { transform: none; }
 }
+.nx-drawer-r { animation: nx-drawerinr 0.28s cubic-bezier(0.22, 0.61, 0.36, 1); }
+@keyframes nx-drawerinr {
+  from { transform: translateX(100%); }
+  to { transform: none; }
+}
 
 /* Acessibilidade — foco visível por teclado (WCAG AA) */
 a:focus-visible,
@@ -595,7 +600,7 @@ textarea:focus-visible,
   animation: nx-sh 1.4s ease infinite;
 }
 @media (prefers-reduced-motion: reduce) {
-  .nx-route, .nx-toast, .nx-skelbar, .nx-drawer { animation: none; }
+  .nx-route, .nx-toast, .nx-skelbar, .nx-drawer, .nx-drawer-r { animation: none; }
 }
 
 @media (max-width: 1180px) {

@@ -1,13 +1,11 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import type { Project, Client } from "@/lib/types";
-import { PageHeader, TableShell, EmptyHint, KpiCard } from "@/components/ui";
+import { PageHeader, EmptyHint, KpiCard } from "@/components/ui";
 import { QuickCreate, type Field } from "@/components/quick-create";
-import { DeleteButton } from "@/components/delete-button";
-import { EditRecord } from "@/components/edit-record";
 import { ExportButton } from "@/components/export-button";
-import { moneyFull, dateBR } from "@/lib/format";
-import { criarProjeto, editarProjeto } from "./actions";
+import { ObrasTable } from "./obras-table";
+import { moneyFull } from "@/lib/format";
+import { criarProjeto } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -18,36 +16,6 @@ const I = {
   pct: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M19 5 5 19" /><circle cx="6.5" cy="6.5" r="2.5" /><circle cx="17.5" cy="17.5" r="2.5" /></svg>,
 };
 
-const STATUS_COR: Record<string, string> = {
-  "Em andamento": "var(--accent)",
-  "Aguardando material": "var(--warn)",
-  Pausado: "var(--bad)",
-  Concluído: "var(--ok)",
-};
-
-function StatusObra({ s }: { s: string }) {
-  const c = STATUS_COR[s] ?? "var(--muted)";
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold" style={{ color: c, background: `color-mix(in srgb, ${c} 14%, transparent)` }}>
-      <span className="h-1.5 w-1.5 rounded-full" style={{ background: c }} />
-      {s}
-    </span>
-  );
-}
-
-function Progresso({ pc }: { pc: number }) {
-  const v = Math.max(0, Math.min(100, Math.round(pc)));
-  const grad = v >= 85 ? "linear-gradient(90deg,#0e9f6e,var(--ok))" : v < 50 ? "linear-gradient(90deg,#b45309,var(--warn))" : "linear-gradient(90deg,var(--accent),var(--accent-2))";
-  return (
-    <div className="flex items-center gap-2.5">
-      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--bg2)]">
-        <div className="h-full rounded-full" style={{ width: `${v}%`, background: grad }} />
-      </div>
-      <span className="w-9 text-right text-[11px] font-bold" style={{ fontVariantNumeric: "tabular-nums" }}>{v}%</span>
-    </div>
-  );
-}
-
 export default async function ProjetosPage() {
   const supabase = await createClient();
   const [{ data: prj }, { data: cli }] = await Promise.all([
@@ -56,7 +24,6 @@ export default async function ProjetosPage() {
   ]);
   const projetos = (prj ?? []) as Project[];
   const clientes = (cli ?? []) as Pick<Client, "id" | "nome">[];
-  const nomePorId = new Map(clientes.map((c) => [c.id, c.nome]));
 
   const carteira = projetos.reduce((a, p) => a + Number(p.valor), 0);
   const custo = projetos.reduce((a, p) => a + Number(p.custo_real), 0);
@@ -98,43 +65,9 @@ export default async function ProjetosPage() {
       </div>
 
       {projetos.length === 0 ? (
-        <EmptyHint>Nenhuma obra cadastrada ainda.</EmptyHint>
+        <EmptyHint title="Nenhuma obra cadastrada">Cadastre a primeira obra no botão acima.</EmptyHint>
       ) : (
-        <TableShell
-          head={
-            <tr>
-              <th className="px-4 py-3">Obra</th>
-              <th className="px-4 py-3">Cliente</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="w-44 px-4 py-3">Progresso</th>
-              <th className="px-4 py-3">Término</th>
-              <th className="px-4 py-3 text-right">Valor</th>
-              <th className="w-10 px-4 py-3"></th>
-            </tr>
-          }
-        >
-          {projetos.map((p) => (
-            <tr key={p.id} className="transition hover:bg-[var(--bg2)]">
-              <td className="px-4 py-3 font-semibold"><Link href={`/projetos/${p.id}`} className="transition hover:text-[var(--accent)]" title="Abrir ficha da obra">{p.nome}</Link></td>
-              <td className="px-4 py-3 text-[var(--muted)]">{p.client_id ? (nomePorId.get(p.client_id) ?? "—") : "—"}</td>
-              <td className="px-4 py-3"><StatusObra s={p.status} /></td>
-              <td className="px-4 py-3"><Progresso pc={Number(p.progresso)} /></td>
-              <td className="px-4 py-3 text-[var(--muted)]">{dateBR(p.fim)}</td>
-              <td className="px-4 py-3 text-right font-bold text-[var(--accent)]" style={{ fontVariantNumeric: "tabular-nums" }}>{moneyFull(Number(p.valor))}</td>
-              <td className="px-2 py-3">
-                <div className="flex items-center justify-end gap-1.5">
-                  <EditRecord
-                    action={editarProjeto}
-                    titulo="Editar obra"
-                    fields={campos}
-                    initial={{ id: p.id, nome: p.nome, client_id: p.client_id ?? "", status: p.status, valor: p.valor, custo_real: p.custo_real, progresso: p.progresso, responsavel: p.responsavel ?? "", inicio: p.inicio ?? "", fim: p.fim ?? "" }}
-                  />
-                  <DeleteButton tabela="projects" id={p.id} path="/projetos" nome={p.nome} />
-                </div>
-              </td>
-            </tr>
-          ))}
-        </TableShell>
+        <ObrasTable linhas={projetos} clientes={clientes} />
       )}
     </div>
   );

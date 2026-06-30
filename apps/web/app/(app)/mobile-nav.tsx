@@ -6,11 +6,13 @@ import { usePathname } from "next/navigation";
 import { logout } from "@/app/login/actions";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LogoMark } from "@/components/logo";
+import { NotificationBell } from "@/components/notification-bell";
+import type { Notificacao } from "@/lib/notifications";
 import { PRINCIPAL, INTELIGENCIA, CONTA, type NavItemData } from "./nav-data";
 
 // Navegação no celular: barra superior fixa + menu lateral deslizante.
 // (No desktop a sidebar normal assume; este componente é md:hidden.)
-export function MobileNav({ plan }: { plan: string }) {
+export function MobileNav({ plan, notificacoes }: { plan: string; notificacoes: Notificacao[] }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -73,6 +75,7 @@ export function MobileNav({ plan }: { plan: string }) {
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" style={{ width: 17, height: 17 }}><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
         </button>
+        <NotificationBell notificacoes={notificacoes} />
         <ThemeToggle />
       </header>
 

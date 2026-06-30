@@ -1,18 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import type { FinanceEntry } from "@/lib/types";
-import {
-  PageHeader,
-  TableShell,
-  EmptyHint,
-  StatusBadge,
-  KpiCard,
-} from "@/components/ui";
+import { PageHeader, EmptyHint, KpiCard } from "@/components/ui";
 import { QuickCreate, type Field } from "@/components/quick-create";
-import { DeleteButton } from "@/components/delete-button";
-import { EditRecord } from "@/components/edit-record";
 import { ExportButton } from "@/components/export-button";
-import { moneyFull, dateBR } from "@/lib/format";
-import { criarLancamento, editarLancamento } from "./actions";
+import { FinanceTable } from "./finance-table";
+import { moneyFull } from "@/lib/format";
+import { criarLancamento } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -93,56 +86,9 @@ export default async function FinanceiroPage() {
       </div>
 
       {entradas.length === 0 ? (
-        <EmptyHint>Nenhum lançamento ainda.</EmptyHint>
+        <EmptyHint title="Nenhum lançamento ainda">Lance a primeira entrada ou saída no botão acima.</EmptyHint>
       ) : (
-        <TableShell
-          head={
-            <tr>
-              <th className="px-4 py-2.5">Data</th>
-              <th className="px-4 py-2.5">Descrição</th>
-              <th className="px-4 py-2.5">Categoria</th>
-              <th className="px-4 py-2.5">Status</th>
-              <th className="px-4 py-2.5 text-right">Valor</th>
-              <th className="w-10 px-4 py-2.5"></th>
-            </tr>
-          }
-        >
-          {entradas.map((e) => (
-            <tr key={e.id} className="hover:bg-[var(--bg2)]">
-              <td className="px-4 py-2.5 text-[var(--muted)]">{dateBR(e.data)}</td>
-              <td className="px-4 py-2.5 font-semibold">{e.descricao}</td>
-              <td className="px-4 py-2.5 text-[var(--muted)]">
-                {e.categoria ?? "—"}
-              </td>
-              <td className="px-4 py-2.5">
-                <StatusBadge status={e.status} />
-              </td>
-              <td
-                className="px-4 py-2.5 text-right font-mono font-bold"
-                style={{
-                  color:
-                    e.tipo === "Entrada"
-                      ? "var(--stage-aprovado)"
-                      : "var(--stage-perdido)",
-                }}
-              >
-                {e.tipo === "Entrada" ? "+" : "−"}
-                {moneyFull(Number(e.valor))}
-              </td>
-              <td className="px-2 py-2.5">
-                <div className="flex items-center justify-end gap-1.5">
-                  <EditRecord
-                    action={editarLancamento}
-                    titulo="Editar lançamento"
-                    fields={CAMPOS}
-                    initial={{ id: e.id, tipo: e.tipo, descricao: e.descricao, valor: e.valor, status: e.status, data: e.data, categoria: e.categoria ?? "" }}
-                  />
-                  <DeleteButton tabela="finance_entries" id={e.id} path="/financeiro" nome={e.descricao} />
-                </div>
-              </td>
-            </tr>
-          ))}
-        </TableShell>
+        <FinanceTable linhas={entradas} />
       )}
     </div>
   );

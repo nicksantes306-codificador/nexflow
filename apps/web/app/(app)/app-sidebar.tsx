@@ -6,9 +6,11 @@ import { usePathname } from "next/navigation";
 import { logout } from "@/app/login/actions";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LogoMark } from "@/components/logo";
+import { NotificationBell } from "@/components/notification-bell";
+import type { Notificacao } from "@/lib/notifications";
 import { PRINCIPAL, INTELIGENCIA, CONTA, type NavItemData } from "./nav-data";
 
-export function AppSidebar({ email, plan }: { email: string; plan: string }) {
+export function AppSidebar({ email, plan, notificacoes }: { email: string; plan: string; notificacoes: Notificacao[] }) {
   const pathname = usePathname();
   const isActive = (id: string) =>
     pathname === `/${id}` || pathname.startsWith(`/${id}/`);
@@ -151,6 +153,7 @@ export function AppSidebar({ email, plan }: { email: string; plan: string }) {
             <b className="block truncate text-[12.5px]">{email.split("@")[0]}</b>
             <span className="block text-[10.5px] text-[var(--muted)]">Administrador</span>
           </span>
+          <NotificationBell notificacoes={notificacoes} />
           <ThemeToggle />
         </div>
         <form action={logout}>
