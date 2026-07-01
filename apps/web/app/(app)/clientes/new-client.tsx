@@ -81,7 +81,7 @@ export function NewClientForm() {
       <button
         onClick={() => setAberto(true)}
         className="rounded-xl px-4 py-2 text-sm font-bold text-white shadow-[0_12px_28px_-14px_rgba(37,99,235,.9)] transition hover:opacity-95"
-        style={{ background: "linear-gradient(120deg,var(--accent),var(--brand-700,#1d4ed8))" }}
+        style={{ background: "linear-gradient(120deg,var(--accent),var(--brand-700,#003fa3))" }}
       >
         + Novo cliente
       </button>
@@ -119,7 +119,7 @@ export function NewClientForm() {
 
       {state.error && <p className="mt-3 text-sm text-[var(--bad)]">{state.error}</p>}
 
-      <button type="submit" disabled={pending} className="mt-4 w-full rounded-xl py-2.5 text-sm font-bold text-white shadow-[0_12px_28px_-14px_rgba(37,99,235,.9)] transition hover:opacity-95 disabled:opacity-60" style={{ background: "linear-gradient(120deg,var(--accent),var(--brand-700,#1d4ed8))" }}>
+      <button type="submit" disabled={pending} className="mt-4 w-full rounded-xl py-2.5 text-sm font-bold text-white shadow-[0_12px_28px_-14px_rgba(37,99,235,.9)] transition hover:opacity-95 disabled:opacity-60" style={{ background: "linear-gradient(120deg,var(--accent),var(--brand-700,#003fa3))" }}>
         {pending ? "Salvando…" : "Cadastrar cliente"}
       </button>
     </form>

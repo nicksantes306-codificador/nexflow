@@ -6,7 +6,7 @@ import { excluirComUndo, restaurarRegistro } from "@/lib/actions/delete";
 import { toast } from "@/components/toaster";
 
 type Props = {
-  tabela: "clients" | "leads" | "projects" | "finance_entries" | "budgets" | "tasks" | "events";
+  tabela: "clients" | "leads" | "projects" | "finance_entries" | "budgets" | "tasks" | "events" | "products";
   id: string;
   path: string;
   /** Nome do item, mostrado no aviso: "Cliente X excluído". */

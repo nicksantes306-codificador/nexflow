@@ -16,12 +16,18 @@ export function PageHeader({
     <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
       <div className="flex items-center gap-3.5">
         {icon && (
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-[color-mix(in_srgb,var(--accent)_22%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-[var(--accent)] [&_svg]:h-5 [&_svg]:w-5">
+          <span
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-white [&_svg]:h-5 [&_svg]:w-5"
+            style={{
+              background: "linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent-2) 65%, var(--accent)))",
+              boxShadow: "0 8px 20px -8px color-mix(in srgb, var(--accent) 65%, transparent)",
+            }}
+          >
             {icon}
           </span>
         )}
         <div>
-          <h1 className="text-[22px] font-extrabold leading-tight tracking-tight">{title}</h1>
+          <h1 className="text-[22px] font-extrabold leading-tight tracking-tight" style={{ fontFamily: "var(--font-display)" }}>{title}</h1>
           {subtitle && <p className="mt-0.5 text-[13px] text-[var(--muted)]">{subtitle}</p>}
         </div>
       </div>
@@ -51,18 +57,32 @@ export function KpiCard({
         : tone === "amber"
           ? "var(--stage-negociacao)"
           : "var(--text)";
+  const acento = tone === "default" ? "var(--accent)" : cor;
   return (
     <div
-      className="rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4"
+      className="nx-lift group relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4"
       style={{ boxShadow: "var(--shadow)" }}
     >
+      {/* barra de acento que cresce no hover */}
+      <span
+        aria-hidden="true"
+        className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100"
+        style={{ background: `linear-gradient(90deg, ${acento}, color-mix(in srgb, var(--accent-2) 70%, ${acento}))` }}
+      />
       <div className="flex items-center justify-between gap-2">
         <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted)]">{label}</p>
-        {icon && <span className="text-[var(--muted)] [&_svg]:h-[18px] [&_svg]:w-[18px]">{icon}</span>}
+        {icon && (
+          <span
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-lg transition-colors [&_svg]:h-[16px] [&_svg]:w-[16px]"
+            style={{ color: acento, background: `color-mix(in srgb, ${acento} 11%, transparent)` }}
+          >
+            {icon}
+          </span>
+        )}
       </div>
       <p
         className="mt-2 text-2xl font-extrabold tracking-tight"
-        style={{ color: cor, fontVariantNumeric: "tabular-nums" }}
+        style={{ color: cor, fontVariantNumeric: "tabular-nums", fontFamily: "var(--font-display)" }}
       >
         {value}
       </p>

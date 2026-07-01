@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { auditar } from "@/lib/audit";
+import { dispararAutomacao } from "@/lib/automations/engine";
 
 export type FormState = { error?: string; ok?: boolean };
 
@@ -37,6 +38,7 @@ export async function criarLancamento(
 
   if (error) return { error: error.message };
   await auditar({ acao: "Criou", entidade: "Lançamento", alvo: descricao });
+  await dispararAutomacao(supabase, tenant, "finance_created", null, { cliente: descricao, valor, status: tipo });
   revalidatePath("/financeiro");
   return { ok: true };
 }

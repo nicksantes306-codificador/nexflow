@@ -133,6 +133,10 @@ function Spark({ i }: { i: number }) {
   );
 }
 
+function VazioBloco({ texto }: { texto: string }) {
+  return <p style={{ padding: "18px 4px", fontSize: 12.5, color: "var(--muted)" }}>{texto}</p>;
+}
+
 const ARROW_UP = (<svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8" /></svg>);
 const ARROW_DN = (<svg viewBox="0 0 24 24"><path d="M7 7 17 17M15 17H7V9" /></svg>);
 
@@ -209,10 +213,10 @@ export function DashboardClient({ data, periodo, nome }: { data: DashData; perio
     icon: React.ReactNode; sub: string; delta?: { v: string; up: boolean };
   };
   const KPIS: Kpi[] = [
-    { label: "Faturamento no período", value: data.receitaAcum, format: brCompact, icon: ICON.receita, sub: "recebido no período", delta: data.demo ? { v: "18,4%", up: true } : undefined },
-    { label: "Faturamento do mês", value: data.receitaMes, format: brCompact, icon: ICON.mes, sub: "este mês", delta: mesDelta !== 0 ? { v: (mesDelta > 0 ? "+" : "") + mesDelta + "%", up: mesDelta >= 0 } : data.demo ? { v: "6,2%", up: true } : undefined },
-    { label: "Obras ativas", value: data.obrasAtivas, format: (n) => String(Math.round(n)), icon: ICON.obra, sub: `${data.obrasCriticas} precisam de atenção`, delta: data.demo ? { v: "+3", up: true } : undefined },
-    { label: "Taxa de fechamento", value: data.conversao, format: (n) => Math.round(n) + "%", icon: ICON.conv, sub: "leads que viraram negócio", delta: data.demo ? { v: "+4 p.p.", up: true } : undefined },
+    { label: "Faturamento no período", value: data.receitaAcum, format: brCompact, icon: ICON.receita, sub: "recebido no período" },
+    { label: "Faturamento do mês", value: data.receitaMes, format: brCompact, icon: ICON.mes, sub: "este mês", delta: mesDelta !== 0 ? { v: (mesDelta > 0 ? "+" : "") + mesDelta + "%", up: mesDelta >= 0 } : undefined },
+    { label: "Obras ativas", value: data.obrasAtivas, format: (n) => String(Math.round(n)), icon: ICON.obra, sub: `${data.obrasCriticas} precisam de atenção` },
+    { label: "Taxa de fechamento", value: data.conversao, format: (n) => Math.round(n) + "%", icon: ICON.conv, sub: "leads que viraram negócio" },
   ];
 
   const PAINEIS: Record<string, React.ReactNode> = {
@@ -224,6 +228,7 @@ export function DashboardClient({ data, periodo, nome }: { data: DashData; perio
           <Link href="/projetos" className="pill ghost">Ver todas</Link>
         </div>
         <div style={{ marginTop: 6 }}>
+          {data.obras.length === 0 && <VazioBloco texto="Nenhuma obra cadastrada ainda." />}
           {data.obras.map((o, i) => (
             <div className="obra" key={o.nome + i}>
               <div className="l1"><div><b>{o.nome}</b><small>{o.cli}</small></div><span className="pc">{o.pc}%</span></div>
@@ -259,6 +264,7 @@ export function DashboardClient({ data, periodo, nome }: { data: DashData; perio
         <div className="skel"><b style={{ width: "50%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /></div>
         <div className="hdr"><div><h3>Equipes nas obras</h3><div className="mut">{data.responsaveis.length} em obras ativas</div></div></div>
         <div style={{ marginTop: 4 }}>
+          {data.responsaveis.length === 0 && <VazioBloco texto="Nenhuma equipe em obra no momento." />}
           {data.responsaveis.map((e, i) => (
             <div className="team" key={e.nome + i}>
               <div className="av">{e.av}</div>
@@ -274,6 +280,7 @@ export function DashboardClient({ data, periodo, nome }: { data: DashData; perio
         <div className="skel"><b style={{ width: "55%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /><b style={{ width: "100%" }} /></div>
         <div className="hdr"><div><h3>Avisos importantes</h3><div className="mut">{data.alertas.length} {data.alertas.length === 1 ? "item precisa" : "itens precisam"} de atenção</div></div></div>
         <div style={{ marginTop: 4 }}>
+          {data.alertas.length === 0 && <VazioBloco texto="Tudo em dia — sem avisos no momento." />}
           {data.alertas.map((a, i) => (
             <div className={`alert ${a.cls}`} key={a.txt + i}>
               <div className="ico">{ALERT_ICON[a.cls]}</div>
@@ -322,7 +329,7 @@ export function DashboardClient({ data, periodo, nome }: { data: DashData; perio
             <h2 suppressHydrationWarning>{saud}{primeiroNome ? <>, <em>{primeiroNome}</em></> : "!"}</h2>
             <p>
               Veja como está a sua empresa hoje.
-              {data.demo && " (dados de exemplo — cadastre seus clientes, obras e contas para ver os reais)"}
+              {data.demo && " Ainda não há dados cadastrados — comece pelos clientes, obras e contas."}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2.5">

@@ -10,6 +10,7 @@ const NAV = [
   { label: "Clientes 360°", href: "/clientes", kw: "" },
   { label: "Orçamentos", href: "/orcamentos", kw: "proposta pdf" },
   { label: "Obras e Serviços", href: "/projetos", kw: "projetos obra" },
+  { label: "Estoque", href: "/estoque", kw: "produtos materiais inventario almoxarifado" },
   { label: "Financeiro", href: "/financeiro", kw: "dre caixa receita" },
   { label: "Relatórios & BI", href: "/relatorios", kw: "graficos dados" },
   { label: "Tarefas", href: "/tarefas", kw: "" },
@@ -20,7 +21,6 @@ const NAV = [
   { label: "Histórico de alterações", href: "/historico", kw: "auditoria log mudancas" },
   { label: "Segurança da conta", href: "/seguranca", kw: "2fa duas etapas senha login" },
   { label: "Minha empresa", href: "/empresa", kw: "cnpj dados" },
-  { label: "Planos & Cobrança", href: "/planos", kw: "assinatura fatura" },
   { label: "Importar dados", href: "/importar", kw: "migrar" },
 ];
 
@@ -52,6 +52,7 @@ export function CommandPalette() {
       { label: "Nova obra", kw: "projeto servico", run: () => router.push("/projetos?novo=1") },
       { label: "Novo orçamento", kw: "proposta", run: () => router.push("/orcamentos?novo=1") },
       { label: "Novo lançamento", kw: "conta receita despesa", run: () => router.push("/financeiro?novo=1") },
+      { label: "Novo produto", kw: "estoque material item", run: () => router.push("/estoque?novo=1") },
       { label: "Nova tarefa", kw: "", run: () => router.push("/tarefas?novo=1") },
       { label: "Novo evento", kw: "agendar reuniao", run: () => router.push("/agenda?novo=1") },
       { label: "Alternar tema claro/escuro", kw: "tema dark light modo escuro claro", run: alternarTema },

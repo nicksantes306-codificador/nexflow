@@ -1,23 +1,24 @@
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@500;700&display=swap");
 @import "tailwindcss";
 
 /* ============================================================================
    NEXFLOW · Design tokens premium (MAXTEC Enterprise)
-   Azul elétrico #2563EB em escala 50–950 + navy/ink admin.
-   Tema claro/escuro via [data-theme]; tokens semânticos abaixo.
+   Azul enterprise #0052CC em escala 50–950 + navy/ink admin.
+   Tokens de fundo/borda/sombra/tipografia alinhados ao design de referência
+   (FLOW CRM). Tema claro/escuro via [data-theme]; tokens semânticos abaixo.
    ========================================================================== */
 @theme {
-  --color-brand-50: #eff6ff;
-  --color-brand-100: #dbeafe;
-  --color-brand-200: #bfdbfe;
-  --color-brand-300: #93c5fd;
-  --color-brand-400: #60a5fa;
-  --color-brand-500: #3b82f6;
-  --color-brand-600: #2563eb; /* azul elétrico NEXFLOW */
-  --color-brand-700: #1d4ed8;
-  --color-brand-800: #1e40af;
-  --color-brand-900: #1e3a8a;
-  --color-brand-950: #172554;
+  --color-brand-50: #eef4ff;
+  --color-brand-100: #dce8ff;
+  --color-brand-200: #b6d0ff;
+  --color-brand-300: #85adff;
+  --color-brand-400: #4a80ff;
+  --color-brand-500: #1a58f5;
+  --color-brand-600: #0052cc; /* azul enterprise NEXFLOW */
+  --color-brand-700: #003fa3;
+  --color-brand-800: #00327f;
+  --color-brand-900: #002863;
+  --color-brand-950: #001a42;
 
   --color-navy-700: #1e293b;
   --color-navy-800: #111a2b;
@@ -25,42 +26,42 @@
   --color-navy-950: #080c16;
 
   --radius-card: 0.875rem;
-  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system,
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-display: "Syne", "DM Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
 /* Tokens semânticos por tema ------------------------------------------------ */
 :root {
-  --bg: #f4f7fb;
+  --bg: #f4f6fb;
   --panel: #ffffff;
-  --bg2: #eef2f8;
-  --text: #0f172a;
-  --muted: #64748b;
-  --border: #e4e9f2;
-  --accent: #2563eb;
-  --accent-2: #0ea5e9;
+  --bg2: #eceef5;
+  --text: #0d1526;
+  --muted: #64748b; /* mantido AA (o cinza claro do HTML de referência reprova contraste 4.5:1) */
+  --border: #dfe5f0;
+  --accent: #0052cc;
+  --accent-2: #0891b2;
   --ok: #059669;
   --warn: #d97706;
   --bad: #dc2626;
-  --ring: rgba(37, 99, 235, 0.12);
-  --shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 16px 36px -24px rgba(15, 23, 42, 0.32);
+  --ring: rgba(0, 82, 204, 0.15);
+  --shadow: 0 2px 8px rgba(13, 21, 38, 0.07), 0 0 0 1px rgba(13, 21, 38, 0.04);
 }
 [data-theme="dark"] {
-  --bg: #080c16;
-  --panel: #0e1422;
-  --bg2: #152033;
-  --text: #f1f5f9;
-  --muted: #94a3b8;
-  --border: #1e2a3f;
-  --accent: #3b82f6;
-  --accent-2: #38bdf8;
+  --bg: #090e1b;
+  --panel: #111827;
+  --bg2: #0d1527;
+  --text: #edf0f8;
+  --muted: #7a8ba8;
+  --border: #1c2a42;
+  --accent: #2f7dff;
+  --accent-2: #22d3ee;
   --ok: #34d399;
   --warn: #fbbf24;
   --bad: #f87171;
-  --ring: rgba(59, 130, 246, 0.18);
-  --shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset,
-    0 18px 40px -24px rgba(0, 0, 0, 0.8);
+  --ring: rgba(47, 125, 255, 0.2);
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
 html,
@@ -114,6 +115,7 @@ body {
   backdrop-filter: blur(14px);
 }
 .nxdash .top h1 {
+  font-family: var(--font-display);
   font-size: 18px;
   font-weight: 800;
   letter-spacing: -0.4px;
@@ -311,6 +313,8 @@ body {
 .nxdash .kpi.lift:hover {
   transform: translateY(-4px);
   border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+  box-shadow: 0 14px 36px -14px color-mix(in srgb, var(--accent) 30%, rgba(13, 21, 38, 0.3)),
+    0 0 0 1px color-mix(in srgb, var(--accent) 12%, transparent);
 }
 .nxdash .kpi .hd {
   display: flex;
@@ -332,6 +336,7 @@ body {
 }
 .nxdash .kpi .hd .ico .ic { width: 16px; height: 16px; }
 .nxdash .kpi .val {
+  font-family: var(--font-display);
   font-size: 28px;
   font-weight: 800;
   letter-spacing: -1px;
@@ -559,6 +564,31 @@ body {
 @keyframes nx-drawerinr {
   from { transform: translateX(100%); }
   to { transform: none; }
+}
+
+/* Polimento premium — profundidade e microinterações (nível vitrine) */
+.nx-lift {
+  transition: transform 0.2s cubic-bezier(0.22, 0.61, 0.36, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.nx-lift:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+  box-shadow: 0 12px 32px -12px color-mix(in srgb, var(--accent) 28%, rgba(13, 21, 38, 0.25)),
+    0 0 0 1px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+/* Wash radial sutil de profundidade no fundo do app (claro e escuro) */
+main {
+  background-image:
+    radial-gradient(900px 420px at 85% -8%, color-mix(in srgb, var(--accent) 5%, transparent), transparent 62%),
+    radial-gradient(700px 380px at -10% 30%, color-mix(in srgb, var(--accent-2) 4%, transparent), transparent 58%);
+  background-attachment: fixed;
+}
+/* Hover de linha de tabela com tinta da marca (padrão FLOW CRM) */
+tbody tr:hover td {
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .nx-lift, .nx-lift:hover { transform: none; transition: none; }
 }
 
 /* Acessibilidade — foco visível por teclado (WCAG AA) */

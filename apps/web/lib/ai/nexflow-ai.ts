@@ -33,7 +33,7 @@ export function snapshot(d: DashData): string {
     `Funil: ${funil}`,
     `Obras em andamento: ${obras}`,
     `Alertas: ${alertas}`,
-    d.demo ? "(observação: dados de demonstração — a empresa ainda não cadastrou registros reais)" : "",
+    d.demo ? "(observação: a empresa ainda não cadastrou nenhum registro real — todos os números acima são zero)" : "",
   ].filter(Boolean).join("\n");
 }
 

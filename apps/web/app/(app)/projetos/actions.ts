@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { auditar } from "@/lib/audit";
+import { dispararAutomacao } from "@/lib/automations/engine";
 
 export type FormState = { error?: string; ok?: boolean };
 
@@ -37,6 +38,7 @@ export async function criarProjeto(
 
   if (error) return { error: error.message };
   await auditar({ acao: "Criou", entidade: "Obra", alvo: nome });
+  await dispararAutomacao(supabase, tenant, "project_created", null, { cliente: nome, valor });
   revalidatePath("/projetos");
   return { ok: true };
 }
@@ -55,13 +57,14 @@ export async function editarProjeto(
   const custo = Number(formData.get("custo_real") ?? 0);
   const progresso = Math.max(0, Math.min(100, Number(formData.get("progresso") ?? 0)));
   const clientId = String(formData.get("client_id") ?? "").trim();
+  const status = String(formData.get("status") ?? "Em andamento");
 
   const { error } = await supabase
     .from("projects")
     .update({
       nome,
       client_id: clientId === "" ? null : clientId,
-      status: String(formData.get("status") ?? "Em andamento"),
+      status,
       valor: Number.isFinite(valor) ? valor : 0,
       custo_real: Number.isFinite(custo) ? custo : 0,
       progresso,
@@ -73,6 +76,13 @@ export async function editarProjeto(
 
   if (error) return { error: error.message };
   await auditar({ acao: "Editou", entidade: "Obra", alvo: nome });
+  if (status === "Pausado" || status === "Concluído") {
+    const { data: tenant } = await supabase.rpc("current_tenant_id");
+    if (tenant) {
+      const gatilho = status === "Pausado" ? "project_paused" : "project_done";
+      await dispararAutomacao(supabase, tenant, gatilho, null, { cliente: nome, valor });
+    }
+  }
   revalidatePath("/projetos");
   return { ok: true };
 }

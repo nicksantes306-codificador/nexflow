@@ -3,8 +3,15 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { Json } from "@nexflow/db";
+import { sugerirAutomacaoIA, type SugestaoAutomacao } from "@/lib/automations/ai-flow";
 
 export type AutoState = { ok?: boolean; error?: string };
+
+// Sugere gatilho/ação/condição a partir de um pedido em português (IA).
+// Não grava nada — só devolve a sugestão para o usuário revisar no construtor.
+export async function sugerirAutomacao(texto: string): Promise<SugestaoAutomacao> {
+  return sugerirAutomacaoIA(texto);
+}
 
 function s(fd: FormData, k: string): string {
   return String(fd.get(k) ?? "").trim();
@@ -33,6 +40,17 @@ export async function criarAutomacao(formData: FormData): Promise<AutoState> {
 
   const gatilhoValor = gatilho === "lead_stage" ? s(formData, "gatilho_valor") || null : null;
 
+  // Condição opcional: só executa se {valor} {operador} {número}.
+  const OPS = [">", ">=", "<", "<=", "==", "!="];
+  let condicao: Json | null = null;
+  if (formData.get("p_cond_ativo") === "on") {
+    const operador = s(formData, "p_cond_operador");
+    const valorCond = Number(s(formData, "p_cond_valor"));
+    if (OPS.includes(operador) && Number.isFinite(valorCond)) {
+      condicao = { campo: "valor", operador, valor: valorCond } as Json;
+    }
+  }
+
   const { error } = await supabase.from("automations").insert({
     tenant_id: tenant,
     nome,
@@ -40,6 +58,7 @@ export async function criarAutomacao(formData: FormData): Promise<AutoState> {
     gatilho_valor: gatilhoValor,
     acao,
     acao_param: param,
+    condicao,
   });
   if (error) return { error: error.message };
 

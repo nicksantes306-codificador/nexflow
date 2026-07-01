@@ -12,6 +12,7 @@ const LABELS: Record<string, string> = {
   budgets: "Orçamento",
   tasks: "Tarefa",
   events: "Evento",
+  products: "Produto",
 };
 function nomeDe(row: Record<string, unknown> | null | undefined): string | null {
   if (!row) return null;
@@ -32,6 +33,7 @@ const PERMITIDAS = [
   "budgets",
   "tasks",
   "events",
+  "products",
 ] as const;
 type Tabela = (typeof PERMITIDAS)[number];
 

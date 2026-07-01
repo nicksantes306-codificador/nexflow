@@ -1,19 +1,20 @@
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@600;700;800&display=swap");
 @import "tailwindcss";
 
 @theme {
-  --color-brand-50: #eff6ff;
-  --color-brand-100: #dbeafe;
-  --color-brand-200: #bfdbfe;
-  --color-brand-300: #93c5fd;
-  --color-brand-400: #60a5fa;
-  --color-brand-500: #3b82f6;
-  --color-brand-600: #2563eb;
-  --color-brand-700: #1d4ed8;
-  --color-cyan-400: #38bdf8;
+  --color-brand-50: #eef4ff;
+  --color-brand-100: #dce8ff;
+  --color-brand-200: #b6d0ff;
+  --color-brand-300: #85adff;
+  --color-brand-400: #4a80ff;
+  --color-brand-500: #1a58f5;
+  --color-brand-600: #0052cc;
+  --color-brand-700: #003fa3;
+  --color-cyan-400: #22d3ee;
   --color-navy-900: #0e1422;
   --color-navy-950: #080c16;
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Syne", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
 html,
@@ -26,11 +27,11 @@ body {
 
 body {
   background-image:
-    radial-gradient(900px 480px at 12% -6%, rgba(59, 130, 246, 0.16), transparent 60%),
-    radial-gradient(760px 420px at 100% 4%, rgba(56, 189, 248, 0.08), transparent 55%);
+    radial-gradient(900px 480px at 12% -6%, rgba(26, 88, 245, 0.16), transparent 60%),
+    radial-gradient(760px 420px at 100% 4%, rgba(34, 211, 238, 0.08), transparent 55%);
   background-attachment: fixed;
 }
 
 ::selection {
-  background: rgba(59, 130, 246, 0.3);
+  background: rgba(26, 88, 245, 0.3);
 }

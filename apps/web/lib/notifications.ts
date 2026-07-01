@@ -22,14 +22,21 @@ export async function buscarNotificacoes(): Promise<Notificacao[]> {
     const hoje = localISO(now);
     const em7 = localISO(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7));
 
-    const [auditRes, tasksRes, budgetsRes, finRes] = await Promise.all([
+    const [auditRes, tasksRes, budgetsRes, finRes, prodRes] = await Promise.all([
       supabase.from("audit_log").select("id,acao,entidade,alvo,created_at").order("created_at", { ascending: false }).limit(12),
       supabase.from("tasks").select("id,titulo,prazo,done"),
       supabase.from("budgets").select("id,titulo,status,validade"),
       supabase.from("finance_entries").select("id,descricao,tipo,status,data"),
+      supabase.from("products").select("id,nome,quantidade,minimo"),
     ]);
 
     const notifs: Notificacao[] = [];
+
+    for (const p of (prodRes.data ?? []) as { id: string; nome: string; quantidade: number; minimo: number }[]) {
+      if (Number(p.minimo) > 0 && Number(p.quantidade) <= Number(p.minimo)) {
+        notifs.push({ id: "prod-" + p.id, grupo: "Avisos", prioridade: 1, titulo: `Estoque baixo: ${p.nome}`, sub: `${Number(p.quantidade)} em estoque (mínimo ${Number(p.minimo)})`, quando: now.toISOString(), href: "/estoque" });
+      }
+    }
 
     for (const t of (tasksRes.data ?? []) as { id: string; titulo: string; prazo: string | null; done: boolean }[]) {
       if (t.done || !t.prazo) continue;

@@ -12,7 +12,7 @@ import { PRINCIPAL, INTELIGENCIA, CONTA, type NavItemData } from "./nav-data";
 
 // Navegação no celular: barra superior fixa + menu lateral deslizante.
 // (No desktop a sidebar normal assume; este componente é md:hidden.)
-export function MobileNav({ plan, notificacoes }: { plan: string; notificacoes: Notificacao[] }) {
+export function MobileNav({ notificacoes }: { notificacoes: Notificacao[] }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -37,7 +37,7 @@ export function MobileNav({ plan, notificacoes }: { plan: string; notificacoes: 
       aria-current={isActive(item.id) ? "page" : undefined}
       className={`flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-semibold transition ${
         isActive(item.id)
-          ? "bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] text-[var(--accent)]"
+          ? "bg-[var(--accent)] text-white"
           : "text-[var(--muted)] hover:bg-[var(--bg2)] hover:text-[var(--text)]"
       }`}
     >
@@ -89,7 +89,7 @@ export function MobileNav({ plan, notificacoes }: { plan: string; notificacoes: 
                 <LogoMark size={34} />
                 <div>
                   <b className="block text-[15px] font-extrabold tracking-tight">NEXFLOW</b>
-                  <span className="block text-[10.5px] text-[var(--muted)]">MAXTEC · Plano {plan}</span>
+                  <span className="block text-[10.5px] text-[var(--muted)]">MAXTEC Engenharia</span>
                 </div>
               </div>
               <button

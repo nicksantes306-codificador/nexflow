@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { dispararAutomacao } from "@/lib/automations/engine";
 
 export type FormState = { error?: string; ok?: boolean };
 
@@ -30,6 +31,7 @@ export async function criarTarefa(
   });
 
   if (error) return { error: error.message };
+  await dispararAutomacao(supabase, tenant, "task_created", null, { cliente: titulo });
   revalidatePath("/tarefas");
   return { ok: true };
 }

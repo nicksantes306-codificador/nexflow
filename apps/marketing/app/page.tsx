@@ -36,15 +36,16 @@ const FEATURES = [
   },
 ];
 
-const PLANOS = [
-  { nome: "Starter", preco: "R$ 149", resumo: "2 usuários · 50 orçamentos/mês", features: ["CRM + Clientes 360°", "Financeiro (DRE)", "Suporte por e-mail"], destaque: false },
-  { nome: "Professional", preco: "R$ 449", resumo: "8 usuários · ilimitado", features: ["Tudo do Starter", "NEXFLOW AI + automações", "Obras, Agenda e Engenharia"], destaque: true },
-  { nome: "Enterprise", preco: "R$ 1.499", resumo: "Usuários ilimitados", features: ["SSO/SAML + white-label", "SLA 99,5%", "Onboarding dedicado"], destaque: false },
+const GRATIS_FEATURES = [
+  "Usuários ilimitados",
+  "CRM, Clientes 360°, Obras, Agenda e Financeiro",
+  "NEXFLOW AI + automações",
+  "Estoque, documentos e histórico completo",
 ];
 
 const FAQ = [
   { q: "Funciona para a minha empresa de instalações elétricas?", a: "Sim. O NEXFLOW foi desenhado para engenharia elétrica e automação industrial: orçamento de painéis, gestão de obras, ART/RRT, medições e RDO." },
-  { q: "Como funciona o pagamento?", a: "Assinatura mensal via PIX recorrente, cartão ou boleto (Iugu). Sem fidelidade — cancele quando quiser." },
+  { q: "Quanto custa?", a: "A plataforma está em lançamento e é gratuita por enquanto — sem cartão, sem cobrança." },
   { q: "Meus dados estão seguros e em conformidade com a LGPD?", a: "Cada empresa tem seus dados isolados (multi-tenant com RLS no Supabase). Política de Privacidade e Termos disponíveis; DPO em dpo@nexflow.com.br." },
   { q: "Consigo migrar meus dados atuais?", a: "Sim, há importação de planilhas (CSV/Excel) e do app antigo no onboarding." },
 ];
@@ -69,13 +70,13 @@ export default function Home() {
           </span>
           <div className="flex items-center gap-2">
             <a href="#planos" className="hidden rounded-lg px-3 py-2 text-sm font-semibold text-slate-300 transition hover:text-white sm:block">
-              Planos
+              Preço
             </a>
             <a href={APP_URL} className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-300 transition hover:text-white">
               Entrar
             </a>
             <a href={APP_URL} className="rounded-xl bg-brand-600 px-4 py-2 text-sm font-bold text-white shadow-[0_10px_26px_-12px_rgba(37,99,235,.9)] transition hover:bg-brand-700">
-              Teste grátis
+              Criar conta grátis
             </a>
           </div>
         </nav>
@@ -97,13 +98,13 @@ export default function Home() {
           </p>
           <div className="mt-9 flex flex-wrap justify-center gap-3">
             <a href={APP_URL} className="rounded-xl bg-brand-600 px-6 py-3 font-bold text-white shadow-[0_16px_36px_-16px_rgba(37,99,235,1)] transition hover:bg-brand-700">
-              Teste 14 dias grátis
+              Criar conta grátis
             </a>
             <a href="#planos" className="rounded-xl border border-white/15 px-6 py-3 font-semibold transition hover:bg-white/5">
-              Ver planos
+              Ver preço
             </a>
           </div>
-          <p className="mt-4 text-xs text-slate-400">Sem cartão para começar · Suporte em português</p>
+          <p className="mt-4 text-xs text-slate-400">Grátis por enquanto · Sem cartão · Suporte em português</p>
 
           {/* Preview do produto */}
           <div className="relative mx-auto mt-14 max-w-4xl">
@@ -179,30 +180,23 @@ export default function Home() {
         {/* Pricing */}
         <section id="planos" className="py-12 scroll-mt-24">
           <div className="text-center">
-            <h2 className="text-3xl font-extrabold tracking-tight md:text-4xl">Planos simples</h2>
-            <p className="mt-3 text-slate-300">Comece pequeno e cresça. Cancele quando quiser.</p>
+            <h2 className="text-3xl font-extrabold tracking-tight md:text-4xl">Grátis por enquanto</h2>
+            <p className="mt-3 text-slate-300">A plataforma está em lançamento — sem cartão, sem cobrança, sem pegadinha.</p>
           </div>
-          <div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-3">
-            {PLANOS.map((p) => (
-              <div key={p.nome} className={`relative rounded-2xl border p-6 ${p.destaque ? "border-2 border-brand-600 bg-white/[0.05]" : "border-white/10 bg-white/[0.02]"}`}>
-                {p.destaque && (
-                  <span className="absolute -top-3 left-6 rounded-full bg-brand-600 px-3 py-0.5 text-[10px] font-bold text-white">MAIS POPULAR</span>
-                )}
-                <h3 className="text-xl font-extrabold">{p.nome}</h3>
-                <p className="mt-1 text-xs text-slate-400">{p.resumo}</p>
-                <p className="mt-5 text-4xl font-extrabold tracking-tight">
-                  {p.preco}<span className="text-base font-semibold text-slate-400">/mês</span>
-                </p>
-                <ul className="mt-6 space-y-2.5 text-sm text-slate-200">
-                  {p.features.map((f) => (
-                    <li key={f} className="flex gap-2"><Check />{f}</li>
-                  ))}
-                </ul>
-                <a href={APP_URL} className={`mt-7 block rounded-xl py-3 text-center text-sm font-bold transition ${p.destaque ? "bg-brand-600 text-white shadow-[0_14px_30px_-14px_rgba(37,99,235,1)] hover:bg-brand-700" : "border border-white/15 hover:bg-white/5"}`}>
-                  Começar agora
-                </a>
-              </div>
-            ))}
+          <div className="mx-auto mt-12 max-w-md">
+            <div className="relative rounded-2xl border-2 border-brand-600 bg-white/[0.05] p-8 text-center">
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-brand-600 px-3 py-0.5 text-[10px] font-bold text-white">DISPONÍVEL AGORA</span>
+              <p className="mt-3 text-5xl font-extrabold tracking-tight">R$ 0</p>
+              <p className="mt-1 text-sm text-slate-400">sem prazo definido</p>
+              <ul className="mt-6 space-y-2.5 text-left text-sm text-slate-200">
+                {GRATIS_FEATURES.map((f) => (
+                  <li key={f} className="flex gap-2"><Check />{f}</li>
+                ))}
+              </ul>
+              <a href={APP_URL} className="mt-7 block rounded-xl bg-brand-600 py-3 text-center text-sm font-bold text-white shadow-[0_14px_30px_-14px_rgba(37,99,235,1)] transition hover:bg-brand-700">
+                Criar conta grátis
+              </a>
+            </div>
           </div>
         </section>
 
@@ -230,7 +224,7 @@ export default function Home() {
             <h2 className="mt-5 text-3xl font-extrabold tracking-tight md:text-4xl">Pronto para organizar a operação?</h2>
             <p className="mt-3 text-slate-300">Comece hoje. Migre seus dados em minutos.</p>
             <a href={APP_URL} className="mt-7 inline-block rounded-xl bg-brand-600 px-7 py-3.5 font-bold text-white shadow-[0_16px_36px_-16px_rgba(37,99,235,1)] transition hover:bg-brand-700">
-              Teste 14 dias grátis
+              Criar conta grátis
             </a>
           </div>
         </section>

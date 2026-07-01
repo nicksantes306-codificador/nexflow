@@ -10,7 +10,7 @@ import { NotificationBell } from "@/components/notification-bell";
 import type { Notificacao } from "@/lib/notifications";
 import { PRINCIPAL, INTELIGENCIA, CONTA, type NavItemData } from "./nav-data";
 
-export function AppSidebar({ email, plan, notificacoes }: { email: string; plan: string; notificacoes: Notificacao[] }) {
+export function AppSidebar({ email, notificacoes }: { email: string; notificacoes: Notificacao[] }) {
   const pathname = usePathname();
   const isActive = (id: string) =>
     pathname === `/${id}` || pathname.startsWith(`/${id}/`);
@@ -43,17 +43,18 @@ export function AppSidebar({ email, plan, notificacoes }: { email: string; plan:
           aria-current={isActive(item.id) ? "page" : undefined}
           className={`relative mb-0.5 flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] font-semibold transition ${
             isActive(item.id)
-              ? "bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] text-[var(--accent)]"
+              ? "bg-[var(--accent)] text-white"
               : "text-[var(--muted)] hover:bg-[var(--bg2)] hover:text-[var(--text)]"
           }`}
         >
-          {isActive(item.id) && (
-            <span className="absolute -left-3 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r bg-[var(--accent)]" />
-          )}
-          <span className="[&_.ic]:h-[18.5px] [&_.ic]:w-[18.5px]">{item.icon}</span>
+          <span className={`[&_.ic]:h-[18.5px] [&_.ic]:w-[18.5px] ${isActive(item.id) ? "[&_.ic]:opacity-90" : ""}`}>{item.icon}</span>
           {item.label}
           {item.tag && (
-            <span className="ml-auto mr-5 rounded-full bg-[color-mix(in_srgb,var(--accent-2)_14%,transparent)] px-2 py-0.5 text-[10px] font-bold text-[var(--accent-2)]">
+            <span
+              className={`ml-auto mr-5 rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                isActive(item.id) ? "bg-white/20 text-white" : "bg-[color-mix(in_srgb,var(--accent-2)_14%,transparent)] text-[var(--accent-2)]"
+              }`}
+            >
               {item.tag}
             </span>
           )}
@@ -76,7 +77,7 @@ export function AppSidebar({ email, plan, notificacoes }: { email: string; plan:
   };
 
   return (
-    <aside className="sticky top-0 hidden h-screen w-[264px] shrink-0 flex-col border-r border-[var(--border)] bg-[var(--panel)] px-4 py-5 md:flex">
+    <aside className="sticky top-0 hidden h-screen w-[240px] shrink-0 flex-col border-r border-[var(--border)] bg-[var(--panel)] px-4 py-5 md:flex">
       {/* Brand */}
       <div className="flex items-center gap-3 px-2 pb-5">
         <LogoMark size={40} className="shrink-0" />
@@ -95,7 +96,6 @@ export function AppSidebar({ email, plan, notificacoes }: { email: string; plan:
         </span>
         <span className="min-w-0 flex-1">
           <b className="block truncate text-[13px] font-bold">MAXTEC Engenharia</b>
-          <span className="block text-[11px] text-[var(--muted)]">Plano {plan}</span>
         </span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
       </button>

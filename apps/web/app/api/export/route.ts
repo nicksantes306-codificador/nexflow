@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-type Tabela = "clients" | "finance_entries" | "projects" | "budgets";
+type Tabela = "clients" | "finance_entries" | "projects" | "budgets" | "products";
 
 // Tipos de exportação permitidos + colunas e cabeçalhos amigáveis (pt-BR).
 const EXPORTS: Record<string, { table: Tabela; cols: string[]; head: string[]; order?: string }> = {
@@ -28,6 +28,12 @@ const EXPORTS: Record<string, { table: Tabela; cols: string[]; head: string[]; o
     table: "budgets",
     cols: ["numero", "titulo", "status", "validade", "valor_total"],
     head: ["Nº", "Título", "Status", "Validade", "Valor"],
+  },
+  estoque: {
+    table: "products",
+    cols: ["nome", "sku", "categoria", "unidade", "quantidade", "minimo", "custo", "preco"],
+    head: ["Produto", "Código", "Categoria", "Unidade", "Quantidade", "Mínimo", "Custo", "Preço"],
+    order: "nome",
   },
 };
 

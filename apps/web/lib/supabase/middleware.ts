@@ -37,7 +37,9 @@ export async function updateSession(request: NextRequest) {
     path.startsWith("/login") ||
     path.startsWith("/auth") ||
     path === "/" ||
-    path.startsWith("/_next");
+    path.startsWith("/_next") ||
+    // Vitrine de componentes: só existe em desenvolvimento (404 em prod).
+    (process.env.NODE_ENV === "development" && path.startsWith("/preview-ui"));
 
   // Não logado tentando acessar área privada → manda p/ login.
   if (!user && !isPublic) {

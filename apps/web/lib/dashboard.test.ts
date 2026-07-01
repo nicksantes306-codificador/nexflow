@@ -9,13 +9,21 @@ const F = (p: Partial<FinanceEntry>): FinanceEntry => p as unknown as FinanceEnt
 const now = new Date(2026, 5, 15); // 15/jun/2026
 
 describe("montarDash", () => {
-  it("cai para demonstração quando tudo está vazio", () => {
+  it("quando tudo está vazio, mostra zero de verdade (nunca inventa dados)", () => {
     const d = montarDash({ leads: [], projects: [], finance: [], clientesNome: {}, now });
     expect(d.demo).toBe(true);
-    expect(d.receitaAcum).toBe(4_820_000);
-    expect(d.obras).toHaveLength(4);
+    expect(d.receitaAcum).toBe(0);
+    expect(d.receitaMes).toBe(0);
+    expect(d.pipelineValor).toBe(0);
+    expect(d.obrasAtivas).toBe(0);
+    expect(d.obras).toHaveLength(0);
+    expect(d.responsaveis).toHaveLength(0);
+    expect(d.alertas).toHaveLength(0);
+    expect(d.funil.every((f) => f.count === 0)).toBe(true);
     expect(d.funil[0].label).toBe("Novo Lead");
     expect(d.rev.real.length).toBe(12);
+    expect(d.rev.real.every((v) => v === null)).toBe(true);
+    expect(d.rev.previsao).toBe(0);
   });
 
   it("calcula comercial a partir dos leads reais", () => {

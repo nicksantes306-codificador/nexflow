@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { computeScore } from "@nexflow/core";
 import { createClient } from "@/lib/supabase/server";
 import { TODOS_STATUS, type StatusLead } from "@/lib/constants";
-import { runAutomations } from "@/lib/automations/engine";
+import { runAutomations, dispararAutomacao } from "@/lib/automations/engine";
 
 // Move um lead de estágio (drag & drop do Kanban).
 export async function moveLead(leadId: string, novoStatus: string) {
@@ -27,12 +27,15 @@ export async function moveLead(leadId: string, novoStatus: string) {
     .maybeSingle();
   const { data: tenant } = await supabase.rpc("current_tenant_id");
   if (tenant && lead) {
-    await runAutomations(supabase, tenant, "lead_stage", novoStatus, {
+    const ctx = {
       cliente: lead.cliente,
       empresa: lead.empresa,
       valor: Number(lead.valor),
       status: novoStatus,
-    });
+    };
+    await runAutomations(supabase, tenant, "lead_stage", novoStatus, ctx);
+    if (novoStatus === "Aprovado") await dispararAutomacao(supabase, tenant, "lead_won", null, ctx);
+    if (novoStatus === "Perdido") await dispararAutomacao(supabase, tenant, "lead_lost", null, ctx);
   }
 
   revalidatePath("/crm");

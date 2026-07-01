@@ -1,7 +1,8 @@
 // Cálculo do Console Executivo — lógica pura (testável sem React/Supabase).
 // Recebe linhas já filtradas por RLS (tenant logado) e devolve tudo pronto
-// para o dashboard renderizar. Cada seção cai para dados de demonstração só
-// quando a tabela correspondente está vazia, para a tela nunca nascer vazia.
+// para o dashboard renderizar. NUNCA inventa dados: quando a empresa ainda
+// não cadastrou nada (ou apagou tudo), os números voltam a zero de verdade —
+// `demo` só sinaliza pra UI mostrar um convite pra começar a cadastrar.
 
 import type { Lead, Project, FinanceEntry } from "./types";
 import { ESTAGIOS } from "./constants";
@@ -102,38 +103,7 @@ function serieReceita(finance: FinanceEntry[], now: Date): RevSerie | null {
   return { labels: MESES, real, proj, previsao };
 }
 
-/* ---------- dados de demonstração (fallback por seção) ---------- */
-const DEMO_REV: RevSerie = {
-  labels: MESES,
-  real: [285e3, 330e3, 355e3, 402e3, 438e3, 496e3, 540e3, 575e3, 612e3, null, null, null],
-  proj: [null, null, null, null, null, null, null, null, 612e3, 640e3, 672e3, 705e3],
-  previsao: 6_900_000,
-};
-const DEMO_OBRAS: Obra[] = [
-  { nome: "Subestação 13,8 kV", cli: "Gerdau S.A. · Equipe Alpha", pc: 78, cls: "" },
-  { nome: "Retrofit painéis CCM", cli: "Tupy S.A. · Equipe Bravo", pc: 45, cls: "lo" },
-  { nome: "SPDA + aterramento", cli: "Iochpe-Maxion · Equipe Delta", pc: 92, cls: "hi" },
-  { nome: "Automação Linha 2", cli: "Romi S.A. · Equipe Charlie", pc: 30, cls: "lo" },
-];
-const DEMO_RESP: Responsavel[] = [
-  { av: "EA", nome: "Equipe Alpha", obra: "Subestação · Gerdau", st: "field", lbl: "Em campo" },
-  { av: "EB", nome: "Equipe Bravo", obra: "Retrofit · Tupy", st: "field", lbl: "Em campo" },
-  { av: "ED", nome: "Equipe Delta", obra: "SPDA · Iochpe", st: "move", lbl: "Deslocamento" },
-  { av: "EC", nome: "Equipe Charlie", obra: "Automação · Romi", st: "idle", lbl: "Standby" },
-];
-const DEMO_ALERTAS: Alerta[] = [
-  { cls: "bad", txt: "Medição da obra SUB-13 (Gerdau) vence em 2 dias", meta: "Financeiro" },
-  { cls: "warn", txt: "Equipe Charlie sem apontamento há 3 h", meta: "Operações" },
-  { cls: "info", txt: "Contrato WEG #2024-087 renova em 15 dias", meta: "Contratos" },
-  { cls: "warn", txt: "Orçamento Embraer aguardando aprovação há 5 dias", meta: "Comercial" },
-];
-const DEMO_FUNIL: FunilEtapa[] = [
-  { label: "Novo Lead", count: 42, valor: 3_800_000 },
-  { label: "Em contato", count: 28, valor: 2_900_000 },
-  { label: "Orçamento enviado", count: 19, valor: 2_300_000 },
-  { label: "Negociação", count: 14, valor: 1_900_000 },
-  { label: "Proposta", count: 9, valor: 1_400_000 },
-];
+const REV_VAZIA: RevSerie = { labels: MESES, real: Array(12).fill(null), proj: Array(12).fill(null), previsao: 0 };
 
 export function montarDash(input: DashInput): DashData {
   const { leads: leadsAll, projects, finance, clientesNome } = input;
@@ -248,18 +218,18 @@ export function montarDash(input: DashInput): DashData {
 
   return {
     demo: vazio,
-    receitaAcum: vazio ? 4_820_000 : recebido,
-    receitaMes: vazio ? 612_000 : receitaMes,
-    receitaMesDeltaPct: vazio ? 6 : receitaMesDeltaPct,
-    pipelineValor: vazio ? 2_100_000 : pipelineValor,
-    oportunidades: vazio ? 38 : emPipeline.length,
-    conversao: vazio ? 32 : conversao,
-    obrasAtivas: vazio ? 14 : ativas.length,
-    funil: vazio ? DEMO_FUNIL : funilReal,
-    obras: obrasReais.length ? obrasReais : vazio ? DEMO_OBRAS : obrasReais,
-    obrasCriticas: vazio ? 4 : obrasCriticas,
-    responsaveis: respReais.length ? respReais : vazio ? DEMO_RESP : respReais,
-    alertas: alertas.length ? alertas.slice(0, 4) : vazio ? DEMO_ALERTAS : alertas,
-    rev: revReal ?? DEMO_REV,
+    receitaAcum: recebido,
+    receitaMes,
+    receitaMesDeltaPct,
+    pipelineValor,
+    oportunidades: emPipeline.length,
+    conversao,
+    obrasAtivas: ativas.length,
+    funil: funilReal,
+    obras: obrasReais,
+    obrasCriticas,
+    responsaveis: respReais,
+    alertas: alertas.slice(0, 4),
+    rev: revReal ?? REV_VAZIA,
   };
 }

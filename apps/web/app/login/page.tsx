@@ -37,15 +37,15 @@ export default function LoginPage() {
         </div>
 
         <div>
-          <h2 className="max-w-md text-3xl font-extrabold leading-tight tracking-tight">
+          <h2 className="max-w-md text-3xl font-extrabold leading-tight tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
             A gestão completa da sua{" "}
-            <span className="bg-gradient-to-r from-[#60a5fa] to-[#38bdf8] bg-clip-text text-transparent">engenharia elétrica</span>.
+            <span className="bg-gradient-to-r from-[#4a80ff] to-[#22d3ee] bg-clip-text text-transparent">engenharia elétrica</span>.
           </h2>
           <ul className="mt-7 space-y-3">
             {BENEFICIOS.map((b) => (
               <li key={b} className="flex items-center gap-3 text-[14px] text-slate-200">
                 <span className="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-white/10">
-                  <svg className="h-3.5 w-3.5 text-[#60a5fa]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+                  <svg className="h-3.5 w-3.5 text-[#4a80ff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
                 </span>
                 {b}
               </li>
@@ -61,7 +61,7 @@ export default function LoginPage() {
         <div className="w-full max-w-sm">
           <div className="mb-6 text-center">
             <LogoMark size={48} className="mx-auto" />
-            <h1 className="mt-3 text-xl font-extrabold tracking-tight">
+            <h1 className="mt-3 text-xl font-extrabold tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
               {mode === "login" ? "Bem-vindo de volta" : "Crie sua conta"}
             </h1>
             <p className="mt-1 text-sm text-[var(--muted)]">
@@ -86,7 +86,7 @@ export default function LoginPage() {
               type="submit"
               disabled={pending}
               className="w-full rounded-xl py-3 font-bold text-white shadow-[0_14px_30px_-14px_rgba(37,99,235,.9)] transition hover:opacity-95 disabled:opacity-60"
-              style={{ background: "linear-gradient(120deg,var(--accent),var(--brand-700,#1d4ed8))" }}
+              style={{ background: "linear-gradient(120deg,var(--accent),var(--brand-700,#003fa3))" }}
             >
               {pending ? "Aguarde…" : mode === "login" ? "Entrar" : "Criar conta"}
             </button>

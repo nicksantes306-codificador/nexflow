@@ -44,6 +44,14 @@ type InvitesInsert = { id?: string; tenant_id: string; email: string; role?: Rol
 type DocumentsRow = { id: string; tenant_id: string; client_id: string | null; project_id: string | null; nome: string; path: string; mime: string | null; tamanho: number | null; created_at: string };
 type DocumentsInsert = { id?: string; tenant_id: string; client_id?: string | null; project_id?: string | null; nome: string; path: string; mime?: string | null; tamanho?: number | null; created_at?: string };
 
+// ── products (estoque) ──
+type ProductsRow = { id: string; tenant_id: string; nome: string; sku: string | null; categoria: string | null; unidade: string; quantidade: number; minimo: number; custo: number; preco: number; created_at: string; updated_at: string };
+type ProductsInsert = { id?: string; tenant_id: string; nome: string; sku?: string | null; categoria?: string | null; unidade?: string; quantidade?: number; minimo?: number; custo?: number; preco?: number; created_at?: string; updated_at?: string };
+
+// ── automation_runs (log de execuções) ──
+type AutomationRunsRow = { id: string; tenant_id: string; automation_id: string | null; nome: string; gatilho: string; acao: string; status: "ok" | "erro"; detalhe: string | null; created_at: string };
+type AutomationRunsInsert = { id?: string; tenant_id: string; automation_id?: string | null; nome: string; gatilho: string; acao: string; status?: "ok" | "erro"; detalhe?: string | null; created_at?: string };
+
 // ── subscriptions ──
 type SubscriptionsRow = { id: string; tenant_id: string; plan: Plan; status: SubStatus; gateway: string; gateway_subscription_id: string | null; current_period_end: string | null; grace_until: string | null; created_at: string; updated_at: string };
 type SubscriptionsInsert = { id?: string; tenant_id: string; plan?: Plan; status?: SubStatus; gateway?: string; gateway_subscription_id?: string | null; current_period_end?: string | null; grace_until?: string | null; created_at?: string; updated_at?: string };
@@ -101,8 +109,8 @@ type AuditRow = { id: string; tenant_id: string; user_id: string | null; acao: s
 type AuditInsert = { id?: string; tenant_id: string; user_id?: string | null; acao: string; entidade?: string | null; alvo?: string | null; detalhe?: string | null; created_at?: string };
 
 // ── automations ──
-type AutomationsRow = { id: string; tenant_id: string; nome: string; gatilho: string; gatilho_valor: string | null; acao: string; acao_param: Json; ativo: boolean; exec_count: number; created_at: string };
-type AutomationsInsert = { id?: string; tenant_id: string; nome: string; gatilho: string; gatilho_valor?: string | null; acao: string; acao_param?: Json; ativo?: boolean; exec_count?: number; created_at?: string };
+type AutomationsRow = { id: string; tenant_id: string; nome: string; gatilho: string; gatilho_valor: string | null; acao: string; acao_param: Json; condicao: Json | null; ativo: boolean; exec_count: number; created_at: string };
+type AutomationsInsert = { id?: string; tenant_id: string; nome: string; gatilho: string; gatilho_valor?: string | null; acao: string; acao_param?: Json; condicao?: Json | null; ativo?: boolean; exec_count?: number; created_at?: string };
 
 type Table<R, I> = { Row: R; Insert: I; Update: Partial<I>; Relationships: [] };
 
@@ -129,6 +137,8 @@ export interface Database {
       automations: Table<AutomationsRow, AutomationsInsert>;
       invites: Table<InvitesRow, InvitesInsert>;
       documents: Table<DocumentsRow, DocumentsInsert>;
+      products: Table<ProductsRow, ProductsInsert>;
+      automation_runs: Table<AutomationRunsRow, AutomationRunsInsert>;
     };
     Views: Record<string, never>;
     Functions: {

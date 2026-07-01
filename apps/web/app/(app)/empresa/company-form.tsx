@@ -117,7 +117,7 @@ export function CompanyForm({ inicial }: { inicial: EmpresaInicial }) {
               onClick={buscarCnpj}
               disabled={buscando}
               className="shrink-0 rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-[0_12px_28px_-14px_rgba(37,99,235,.9)] transition hover:opacity-95 disabled:opacity-60"
-              style={{ background: "linear-gradient(120deg,var(--accent),var(--brand-700,#1d4ed8))" }}
+              style={{ background: "linear-gradient(120deg,var(--accent),var(--brand-700,#003fa3))" }}
             >
               {buscando ? "Buscando…" : "Buscar CNPJ"}
             </button>
@@ -153,7 +153,7 @@ export function CompanyForm({ inicial }: { inicial: EmpresaInicial }) {
         {state.error && <p className="mt-4 rounded-lg border border-[color-mix(in_srgb,var(--bad)_30%,transparent)] bg-[color-mix(in_srgb,var(--bad)_10%,transparent)] px-3 py-2 text-sm text-[var(--bad)]">{state.error}</p>}
         {state.ok && <p className="mt-4 rounded-lg border border-[color-mix(in_srgb,var(--ok)_30%,transparent)] bg-[color-mix(in_srgb,var(--ok)_10%,transparent)] px-3 py-2 text-sm text-[var(--ok)]">Dados da empresa salvos ✓</p>}
 
-        <button type="submit" disabled={pending} className="mt-5 rounded-xl px-6 py-2.5 text-sm font-bold text-white shadow-[0_12px_28px_-14px_rgba(37,99,235,.9)] transition hover:opacity-95 disabled:opacity-60" style={{ background: "linear-gradient(120deg,var(--accent),var(--brand-700,#1d4ed8))" }}>
+        <button type="submit" disabled={pending} className="mt-5 rounded-xl px-6 py-2.5 text-sm font-bold text-white shadow-[0_12px_28px_-14px_rgba(37,99,235,.9)] transition hover:opacity-95 disabled:opacity-60" style={{ background: "linear-gradient(120deg,var(--accent),var(--brand-700,#003fa3))" }}>
           {pending ? "Salvando…" : "Salvar empresa"}
         </button>
       </div>

@@ -1,5 +1,5 @@
 // Baixa a lista atual em CSV (abre no Excel). Anexo gerado em /api/export.
-export function ExportButton({ tipo }: { tipo: "clientes" | "financeiro" | "obras" | "orcamentos" }) {
+export function ExportButton({ tipo }: { tipo: "clientes" | "financeiro" | "obras" | "orcamentos" | "estoque" }) {
   return (
     <a
       href={`/api/export?tipo=${tipo}`}

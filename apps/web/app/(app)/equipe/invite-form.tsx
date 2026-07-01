@@ -37,7 +37,7 @@ export function InviteForm() {
         type="submit"
         disabled={pending}
         className="mt-4 rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-[0_12px_28px_-14px_rgba(37,99,235,.9)] transition hover:opacity-95 disabled:opacity-60"
-        style={{ background: "linear-gradient(120deg,var(--accent),var(--brand-700,#1d4ed8))" }}
+        style={{ background: "linear-gradient(120deg,var(--accent),var(--brand-700,#003fa3))" }}
       >
         {pending ? "Convidando…" : "Convidar para a equipe"}
       </button>

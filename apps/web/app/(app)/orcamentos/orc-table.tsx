@@ -6,6 +6,7 @@ import { StatusBadge } from "@/components/ui";
 import { DataTable, type Coluna } from "@/components/data-table";
 import { EditRecord } from "@/components/edit-record";
 import { DeleteButton } from "@/components/delete-button";
+import { GerarObraButton } from "@/components/gerar-obra-button";
 import type { Field } from "@/components/quick-create";
 import { moneyFull, dateBR } from "@/lib/format";
 import { editarOrcamento } from "./actions";
@@ -35,8 +36,9 @@ export function OrcTable({ linhas, clientes }: { linhas: Budget[]; clientes: Pic
     { chave: "status", titulo: "Status", ordenavel: true, valor: (o) => o.status, cell: (o) => <StatusBadge status={o.status} /> },
     { chave: "validade", titulo: "Validade", ordenavel: true, valor: (o) => o.validade ?? "", cell: (o) => <span className="text-[var(--muted)]">{dateBR(o.validade)}</span> },
     { chave: "valor", titulo: "Valor", alinhar: "dir", ordenavel: true, valor: (o) => Number(o.valor_total), cell: (o) => <span className="font-bold text-[var(--accent)]" style={{ fontVariantNumeric: "tabular-nums" }}>{moneyFull(Number(o.valor_total))}</span> },
-    { chave: "acoes", titulo: "", largura: "w-20", cell: (o) => (
+    { chave: "acoes", titulo: "", largura: "w-28", cell: (o) => (
       <div className="flex items-center justify-end gap-1.5">
+        {o.status !== "aprovado" && <GerarObraButton id={o.id} />}
         <EditRecord action={editarOrcamento} titulo="Editar orçamento" fields={campos} initial={{ id: o.id, titulo: o.titulo, client_id: o.client_id ?? "", valor_total: o.valor_total, validade: o.validade ?? "", status: o.status }} />
         <DeleteButton tabela="budgets" id={o.id} path="/orcamentos" nome={o.titulo} />
       </div>
