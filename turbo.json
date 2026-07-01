@@ -16,6 +16,10 @@
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
+    "start": {
+      "cache": false,
+      "persistent": true
+    },
     "lint": {},
     "typecheck": {
       "dependsOn": ["^build"]
