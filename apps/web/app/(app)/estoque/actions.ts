@@ -59,6 +59,11 @@ export async function editarProduto(_prev: FormState, formData: FormData): Promi
   const quantidade = num(formData, "quantidade");
   const minimo = num(formData, "minimo");
 
+  // Estado anterior — "estoque baixo" só dispara quando CRUZA o mínimo
+  // (estava acima e ficou abaixo/igual). Editar um produto que já estava
+  // baixo não dispara de novo a cada salvamento.
+  const { data: antes } = await supabase.from("products").select("quantidade,minimo").eq("id", id).maybeSingle();
+
   const { error } = await supabase
     .from("products")
     .update({
@@ -76,7 +81,9 @@ export async function editarProduto(_prev: FormState, formData: FormData): Promi
   if (error) return { error: error.message };
 
   await auditar({ acao: "Editou", entidade: "Produto", alvo: nome });
-  if (minimo > 0 && quantidade <= minimo) {
+  const estavaBaixo = antes != null && Number(antes.minimo) > 0 && Number(antes.quantidade) <= Number(antes.minimo);
+  const ficouBaixo = minimo > 0 && quantidade <= minimo;
+  if (ficouBaixo && !estavaBaixo) {
     const { data: tenant } = await supabase.rpc("current_tenant_id");
     if (tenant) await dispararAutomacao(supabase, tenant, "product_low_stock", null, { cliente: nome });
   }

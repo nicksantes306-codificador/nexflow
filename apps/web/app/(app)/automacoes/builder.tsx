@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { GATILHOS, ACOES, OPERADORES } from "@/lib/automations/engine";
+import { GATILHOS, ACOES, OPERADORES, gatilhoTemValor } from "@/lib/automations/engine";
 import { TODOS_STATUS } from "@/lib/constants";
 import { toast } from "@/components/toaster";
 import { criarAutomacao, sugerirAutomacao } from "./actions";
@@ -135,7 +135,15 @@ export function Builder() {
           {/* Gatilho */}
           <div className="rounded-xl border border-[color-mix(in_srgb,var(--accent)_25%,transparent)] bg-[color-mix(in_srgb,var(--accent)_6%,transparent)] p-4">
             <span className="mb-2 inline-block rounded-md bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-wide text-[var(--accent)]">Quando</span>
-            <select name="gatilho" value={gatilho} onChange={(e) => setGatilho(e.target.value)} className={inp}>
+            <select
+              name="gatilho"
+              value={gatilho}
+              onChange={(e) => {
+                setGatilho(e.target.value);
+                if (!gatilhoTemValor(e.target.value)) setCondAtiva(false);
+              }}
+              className={inp}
+            >
               {GATILHOS.map((g) => (
                 <option key={g.id} value={g.id}>{g.label}</option>
               ))}
@@ -152,7 +160,8 @@ export function Builder() {
             )}
           </div>
 
-          {/* Condição opcional */}
+          {/* Condição opcional — só para gatilhos que carregam valor em R$ */}
+          {gatilhoTemValor(gatilho) && (
           <div className="rounded-xl border border-[var(--border)] bg-[var(--bg2)] p-4">
             <label className="flex cursor-pointer items-center gap-2 text-sm font-semibold">
               <input type="checkbox" name="p_cond_ativo" checked={condAtiva} onChange={(e) => setCondAtiva(e.target.checked)} className="h-4 w-4" />
@@ -175,6 +184,7 @@ export function Builder() {
               </div>
             )}
           </div>
+          )}
 
           {/* Ação */}
           <div className="rounded-xl border border-[color-mix(in_srgb,var(--accent-2)_25%,transparent)] bg-[color-mix(in_srgb,var(--accent-2)_6%,transparent)] p-4">

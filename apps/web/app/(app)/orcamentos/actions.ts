@@ -60,6 +60,10 @@ export async function editarOrcamento(
   const clientId = String(formData.get("client_id") ?? "").trim();
   const status = String(formData.get("status") ?? "rascunho");
 
+  // Estado anterior — o gatilho "aprovado" só dispara na TRANSIÇÃO para
+  // aprovado (re-salvar um orçamento já aprovado não dispara de novo).
+  const { data: antes } = await supabase.from("budgets").select("status").eq("id", id).maybeSingle();
+
   const { error } = await supabase
     .from("budgets")
     .update({
@@ -73,9 +77,9 @@ export async function editarOrcamento(
 
   if (error) return { error: error.message };
   await auditar({ acao: "Editou", entidade: "Orçamento", alvo: titulo });
-  if (status === "aprovado") {
+  if (status === "aprovado" && antes?.status !== "aprovado") {
     const { data: tenant } = await supabase.rpc("current_tenant_id");
-    if (tenant) await dispararAutomacao(supabase, tenant, "budget_approved", null, { cliente: titulo, valor });
+    if (tenant) await dispararAutomacao(supabase, tenant, "budget_approved", null, { cliente: titulo, valor }, id);
   }
   revalidatePath("/orcamentos");
   return { ok: true };
@@ -95,6 +99,7 @@ export async function gerarObraDoOrcamento(
 
   const { data: orc } = await supabase.from("budgets").select("*").eq("id", id).maybeSingle();
   if (!orc) return { error: "Orçamento não encontrado." };
+  if (orc.status === "aprovado") return { error: "Este orçamento já foi aprovado — a obra já deve existir." };
 
   const valor = Number(orc.valor_total) || 0;
 
@@ -125,7 +130,12 @@ export async function gerarObraDoOrcamento(
 
   await supabase.from("budgets").update({ status: "aprovado" }).eq("id", id);
   await auditar({ acao: "Criou", entidade: "Obra", alvo: orc.titulo, detalhe: "Gerada do orçamento" });
-  await dispararAutomacao(supabase, tenant, "budget_approved", null, { cliente: orc.titulo, valor });
+  // Dispara os 3 eventos reais do handoff (aprovação + obra + financeiro).
+  // dedupKey = id do orçamento: mesma chave do editarOrcamento, então a
+  // aprovação nunca executa a mesma regra duas vezes pelos dois caminhos.
+  await dispararAutomacao(supabase, tenant, "budget_approved", null, { cliente: orc.titulo, valor }, id);
+  await dispararAutomacao(supabase, tenant, "project_created", null, { cliente: orc.titulo, valor }, proj.id);
+  await dispararAutomacao(supabase, tenant, "finance_created", null, { cliente: `Contrato: ${orc.titulo}`, valor, status: "Entrada" });
 
   revalidatePath("/orcamentos");
   revalidatePath("/projetos");

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { interp, filtrarRegras, condicaoPassa } from "./engine";
+import { interp, filtrarRegras, condicaoPassa, gatilhoTemValor, GATILHOS } from "./engine";
 
 describe("interp", () => {
   it("substitui {cliente} e {empresa}", () => {
@@ -43,5 +43,19 @@ describe("condicaoPassa", () => {
   it("condição mal formada não bloqueia", () => {
     expect(condicaoPassa({ campo: "status" }, { valor: 10 })).toBe(true);
     expect(condicaoPassa("texto qualquer", { valor: 10 })).toBe(true);
+  });
+});
+
+describe("gatilhoTemValor (anti-fantasma)", () => {
+  it("gatilhos com valor em R$ aceitam condição; os demais não", () => {
+    expect(gatilhoTemValor("budget_approved")).toBe(true);
+    expect(gatilhoTemValor("lead_won")).toBe(true);
+    expect(gatilhoTemValor("finance_created")).toBe(true);
+    expect(gatilhoTemValor("client_created")).toBe(false);
+    expect(gatilhoTemValor("product_low_stock")).toBe(false);
+    expect(gatilhoTemValor("gatilho_inexistente")).toBe(false);
+  });
+  it("todo gatilho do catálogo declara temValor explicitamente", () => {
+    for (const g of GATILHOS) expect(typeof g.temValor).toBe("boolean");
   });
 });

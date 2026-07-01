@@ -49,8 +49,12 @@ type ProductsRow = { id: string; tenant_id: string; nome: string; sku: string | 
 type ProductsInsert = { id?: string; tenant_id: string; nome: string; sku?: string | null; categoria?: string | null; unidade?: string; quantidade?: number; minimo?: number; custo?: number; preco?: number; created_at?: string; updated_at?: string };
 
 // ── automation_runs (log de execuções) ──
-type AutomationRunsRow = { id: string; tenant_id: string; automation_id: string | null; nome: string; gatilho: string; acao: string; status: "ok" | "erro"; detalhe: string | null; created_at: string };
-type AutomationRunsInsert = { id?: string; tenant_id: string; automation_id?: string | null; nome: string; gatilho: string; acao: string; status?: "ok" | "erro"; detalhe?: string | null; created_at?: string };
+type AutomationRunsRow = { id: string; tenant_id: string; automation_id: string | null; nome: string; gatilho: string; acao: string; status: "ok" | "erro" | "simulado"; detalhe: string | null; created_at: string };
+type AutomationRunsInsert = { id?: string; tenant_id: string; automation_id?: string | null; nome: string; gatilho: string; acao: string; status?: "ok" | "erro" | "simulado"; detalhe?: string | null; created_at?: string };
+
+// ── automation_dedup (idempotência: 1 execução por regra+registro) ──
+type AutomationDedupRow = { id: string; tenant_id: string; automation_id: string; chave: string; created_at: string };
+type AutomationDedupInsert = { id?: string; tenant_id: string; automation_id: string; chave: string; created_at?: string };
 
 // ── subscriptions ──
 type SubscriptionsRow = { id: string; tenant_id: string; plan: Plan; status: SubStatus; gateway: string; gateway_subscription_id: string | null; current_period_end: string | null; grace_until: string | null; created_at: string; updated_at: string };
@@ -109,8 +113,8 @@ type AuditRow = { id: string; tenant_id: string; user_id: string | null; acao: s
 type AuditInsert = { id?: string; tenant_id: string; user_id?: string | null; acao: string; entidade?: string | null; alvo?: string | null; detalhe?: string | null; created_at?: string };
 
 // ── automations ──
-type AutomationsRow = { id: string; tenant_id: string; nome: string; gatilho: string; gatilho_valor: string | null; acao: string; acao_param: Json; condicao: Json | null; ativo: boolean; exec_count: number; created_at: string };
-type AutomationsInsert = { id?: string; tenant_id: string; nome: string; gatilho: string; gatilho_valor?: string | null; acao: string; acao_param?: Json; condicao?: Json | null; ativo?: boolean; exec_count?: number; created_at?: string };
+type AutomationsRow = { id: string; tenant_id: string; nome: string; gatilho: string; gatilho_valor: string | null; acao: string; acao_param: Json; condicao: Json | null; ativo: boolean; dry_run: boolean; exec_count: number; created_at: string };
+type AutomationsInsert = { id?: string; tenant_id: string; nome: string; gatilho: string; gatilho_valor?: string | null; acao: string; acao_param?: Json; condicao?: Json | null; ativo?: boolean; dry_run?: boolean; exec_count?: number; created_at?: string };
 
 type Table<R, I> = { Row: R; Insert: I; Update: Partial<I>; Relationships: [] };
 
@@ -139,6 +143,7 @@ export interface Database {
       documents: Table<DocumentsRow, DocumentsInsert>;
       products: Table<ProductsRow, ProductsInsert>;
       automation_runs: Table<AutomationRunsRow, AutomationRunsInsert>;
+      automation_dedup: Table<AutomationDedupRow, AutomationDedupInsert>;
     };
     Views: Record<string, never>;
     Functions: {
@@ -146,6 +151,7 @@ export interface Database {
       is_member_of: { Args: { p_tenant: string }; Returns: boolean };
       has_role: { Args: { p_tenant: string; p_roles: string[] }; Returns: boolean };
       attach_me_to_demo: { Args: Record<string, never>; Returns: string };
+      bump_automation_exec: { Args: { aid: string }; Returns: undefined };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

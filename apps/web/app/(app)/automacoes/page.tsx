@@ -4,7 +4,7 @@ import { PageHeader, KpiCard, EmptyHint } from "@/components/ui";
 import { labelGatilho, labelAcao, categoriaGatilho, OPERADORES, type Categoria, type Condicao } from "@/lib/automations/engine";
 import { moneyFull } from "@/lib/format";
 import { Builder } from "./builder";
-import { toggleAutomacao, excluirAutomacao } from "./actions";
+import { toggleAutomacao, excluirAutomacao, toggleDryRun } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -75,13 +75,16 @@ export default async function AutomacoesPage() {
                   <li key={e.id} className="flex items-start gap-2.5">
                     <span
                       className="mt-1 h-2 w-2 shrink-0 rounded-full"
-                      style={{ background: e.status === "ok" ? "var(--ok)" : "var(--bad)" }}
+                      style={{ background: e.status === "ok" ? "var(--ok)" : e.status === "simulado" ? "var(--warn)" : "var(--bad)" }}
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-[12.5px] font-semibold">{e.nome}</p>
+                      <p className="truncate text-[12.5px] font-semibold">
+                        {e.nome}
+                        {e.status === "simulado" && <span className="ml-1.5 rounded bg-[color-mix(in_srgb,var(--warn)_14%,transparent)] px-1.5 py-px text-[10px] font-bold text-[var(--warn)]">teste</span>}
+                      </p>
                       <p className="truncate text-[11px] text-[var(--muted)]">
                         {labelGatilho(e.gatilho)} → {labelAcao(e.acao)} · {quando(e.created_at)}
-                        {e.status === "erro" && e.detalhe ? ` · ${e.detalhe}` : ""}
+                        {e.status !== "ok" && e.detalhe ? ` · ${e.detalhe}` : ""}
                       </p>
                     </div>
                   </li>
@@ -142,12 +145,26 @@ export default async function AutomacoesPage() {
                       </div>
                     </div>
                     <div className="mt-3 flex items-center justify-between border-t border-[var(--border)] pt-2.5 text-[11px] text-[var(--muted)]">
-                      <span className="flex items-center gap-2">
+                      <span className="flex flex-wrap items-center gap-2">
                         <span className="inline-flex items-center gap-1.5 font-bold" style={{ color: r.ativo ? "var(--ok)" : "var(--muted)" }}>
                           <span className="h-1.5 w-1.5 rounded-full" style={{ background: r.ativo ? "var(--ok)" : "var(--muted)" }} />
                           {r.ativo ? "Ativa" : "Pausada"}
                         </span>
                         · {r.exec_count ?? 0} execuç{(r.exec_count ?? 0) === 1 ? "ão" : "ões"}
+                        <form action={toggleDryRun} className="inline">
+                          <input type="hidden" name="id" value={r.id} />
+                          <input type="hidden" name="dry_run" value={String(r.dry_run)} />
+                          <button
+                            type="submit"
+                            title={r.dry_run ? "Modo teste LIGADO — a regra registra no log sem criar nada. Clique para valer de verdade." : "Ligar modo teste (simula sem criar nada)"}
+                            className="rounded px-1.5 py-px font-bold transition"
+                            style={r.dry_run
+                              ? { color: "var(--warn)", background: "color-mix(in srgb, var(--warn) 14%, transparent)" }
+                              : { color: "var(--muted)", background: "var(--bg2)" }}
+                          >
+                            {r.dry_run ? "Modo teste" : "Testar"}
+                          </button>
+                        </form>
                       </span>
                       <form action={excluirAutomacao}>
                         <input type="hidden" name="id" value={r.id} />

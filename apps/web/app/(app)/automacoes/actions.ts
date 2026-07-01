@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { Json } from "@nexflow/db";
 import { sugerirAutomacaoIA, type SugestaoAutomacao } from "@/lib/automations/ai-flow";
+import { gatilhoTemValor } from "@/lib/automations/engine";
 
 export type AutoState = { ok?: boolean; error?: string };
 
@@ -41,9 +42,14 @@ export async function criarAutomacao(formData: FormData): Promise<AutoState> {
   const gatilhoValor = gatilho === "lead_stage" ? s(formData, "gatilho_valor") || null : null;
 
   // Condição opcional: só executa se {valor} {operador} {número}.
+  // Só é aceita em gatilhos cujo contexto carrega valor — senão a regra
+  // nunca dispararia (regra-fantasma).
   const OPS = [">", ">=", "<", "<=", "==", "!="];
   let condicao: Json | null = null;
   if (formData.get("p_cond_ativo") === "on") {
+    if (!gatilhoTemValor(gatilho)) {
+      return { error: "Este gatilho não tem valor em R$ — remova a condição de valor." };
+    }
     const operador = s(formData, "p_cond_operador");
     const valorCond = Number(s(formData, "p_cond_valor"));
     if (OPS.includes(operador) && Number.isFinite(valorCond)) {
@@ -78,5 +84,15 @@ export async function excluirAutomacao(formData: FormData) {
   const id = s(formData, "id");
   const supabase = await createClient();
   await supabase.from("automations").delete().eq("id", id);
+  revalidatePath("/automacoes");
+}
+
+// Modo teste (dry-run): a regra registra no log o que TERIA feito, sem criar
+// nada — seguro para validar automações que mexem em financeiro/registros.
+export async function toggleDryRun(formData: FormData) {
+  const id = s(formData, "id");
+  const dryRun = s(formData, "dry_run") === "true";
+  const supabase = await createClient();
+  await supabase.from("automations").update({ dry_run: !dryRun }).eq("id", id);
   revalidatePath("/automacoes");
 }

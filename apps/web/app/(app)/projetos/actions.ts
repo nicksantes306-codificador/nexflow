@@ -59,6 +59,10 @@ export async function editarProjeto(
   const clientId = String(formData.get("client_id") ?? "").trim();
   const status = String(formData.get("status") ?? "Em andamento");
 
+  // Estado anterior — gatilhos de pausa/conclusão só disparam na TRANSIÇÃO
+  // (re-salvar uma obra já pausada/concluída não dispara de novo).
+  const { data: antes } = await supabase.from("projects").select("status").eq("id", id).maybeSingle();
+
   const { error } = await supabase
     .from("projects")
     .update({
@@ -76,7 +80,7 @@ export async function editarProjeto(
 
   if (error) return { error: error.message };
   await auditar({ acao: "Editou", entidade: "Obra", alvo: nome });
-  if (status === "Pausado" || status === "Concluído") {
+  if ((status === "Pausado" || status === "Concluído") && antes?.status !== status) {
     const { data: tenant } = await supabase.rpc("current_tenant_id");
     if (tenant) {
       const gatilho = status === "Pausado" ? "project_paused" : "project_done";
