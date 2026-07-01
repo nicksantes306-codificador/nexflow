@@ -10,8 +10,8 @@
   "scripts": {
     "postinstall": "node scripts/fix-native-binary-perms.cjs",
     "dev": "turbo run dev",
-    "build": "turbo run build",
-    "start": "turbo run start --filter=@nexflow/web",
+    "build": "pnpm -r run build",
+    "start": "pnpm --filter @nexflow/web run start",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
