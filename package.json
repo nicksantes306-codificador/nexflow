@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "NEXFLOW — CRM + ERP para empresas de engenharia elétrica e automação industrial",
-  "packageManager": "pnpm@9.12.0",
+  "packageManager": "pnpm@11.9.0",
   "engines": {
     "node": ">=20.0.0"
   },
