@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { GATILHOS, ACOES, OPERADORES, gatilhoTemValor } from "@/lib/automations/engine";
+import { GATILHOS, ACOES, OPERADORES, gatilhoTemValor, gatilhoPrecisaDias } from "@/lib/automations/engine";
 import { TODOS_STATUS } from "@/lib/constants";
 import { toast } from "@/components/toaster";
 import { criarAutomacao, sugerirAutomacao } from "./actions";
@@ -56,6 +56,9 @@ export function Builder() {
       if (el) el.value = valor;
     };
     set("nome", pendingFill.nome);
+    if (pendingFill.gatilhoValor && gatilhoPrecisaDias(pendingFill.gatilho)) {
+      set("p_dias", pendingFill.gatilhoValor);
+    }
     if (pendingFill.acao === "create_task") {
       set("p_titulo", String(pendingFill.param.titulo ?? ""));
       set("p_prioridade", String(pendingFill.param.prioridade ?? "Média"));
@@ -156,6 +159,13 @@ export function Builder() {
                     <option key={s} value={s}>{s}</option>
                   ))}
                 </select>
+              </div>
+            )}
+            {gatilhoPrecisaDias(gatilho) && (
+              <div className="mt-3">
+                <label className={lbl}>Quantos dias (o X do gatilho)</label>
+                <input name="p_dias" type="number" min={1} placeholder="7" className={inp} />
+                <p className="mt-1.5 text-[11px] text-[var(--muted)]">Verificado automaticamente quando alguém da equipe abre o sistema.</p>
               </div>
             )}
           </div>

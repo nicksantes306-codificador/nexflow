@@ -41,4 +41,22 @@ describe("sugerirLocal", () => {
     const s = sugerirLocal("");
     expect(s.nome).toBe("Nova automação");
   });
+
+  it("reconhece gatilhos de tempo e extrai os dias", () => {
+    const s1 = sugerirLocal("quando uma proposta ficar 5 dias sem resposta, criar tarefa de follow-up");
+    expect(s1.gatilho).toBe("budget_stale");
+    expect(s1.gatilhoValor).toBe("5");
+
+    const s2 = sugerirLocal("me avise quando um negócio ficar parado 10 dias");
+    expect(s2.gatilho).toBe("lead_stale");
+    expect(s2.gatilhoValor).toBe("10");
+
+    const s3 = sugerirLocal("quando uma fatura estiver vencida, criar tarefa de cobrança");
+    expect(s3.gatilho).toBe("finance_overdue");
+    expect(s3.gatilhoValor).toBeNull();
+
+    const s4 = sugerirLocal("alertar quando a obra estiver a 7 dias do prazo final");
+    expect(s4.gatilho).toBe("project_deadline");
+    expect(s4.gatilhoValor).toBe("7");
+  });
 });

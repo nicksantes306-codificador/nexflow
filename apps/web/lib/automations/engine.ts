@@ -15,26 +15,36 @@ export type Categoria = "comercial" | "financeiro" | "obras" | "estoque" | "gera
 
 // `temValor`: o contexto do disparo carrega um valor em R$ — só esses gatilhos
 // aceitam condição de valor (evita regras-fantasma que nunca disparam).
+// `precisaDias`: gatilho de TEMPO — o campo gatilho_valor guarda o nº de dias
+// e a avaliação acontece na varredura (lib/automations/sweep.ts), não em evento.
 export const GATILHOS = [
-  { id: "lead_created", label: "Quando um negócio é criado", precisaValor: false, temValor: true, categoria: "comercial" },
-  { id: "lead_stage", label: "Quando um negócio muda de etapa", precisaValor: true, temValor: true, categoria: "comercial" },
-  { id: "lead_won", label: "Quando um negócio é fechado (ganho)", precisaValor: false, temValor: true, categoria: "comercial" },
-  { id: "lead_lost", label: "Quando um negócio é perdido", precisaValor: false, temValor: true, categoria: "comercial" },
-  { id: "client_created", label: "Quando um cliente é cadastrado", precisaValor: false, temValor: false, categoria: "comercial" },
-  { id: "budget_created", label: "Quando um orçamento é criado", precisaValor: false, temValor: true, categoria: "comercial" },
-  { id: "budget_approved", label: "Quando um orçamento é aprovado", precisaValor: false, temValor: true, categoria: "comercial" },
-  { id: "project_created", label: "Quando uma obra é criada", precisaValor: false, temValor: true, categoria: "obras" },
-  { id: "project_paused", label: "Quando uma obra é pausada", precisaValor: false, temValor: true, categoria: "obras" },
-  { id: "project_done", label: "Quando uma obra é concluída", precisaValor: false, temValor: true, categoria: "obras" },
-  { id: "finance_created", label: "Quando um lançamento financeiro é criado", precisaValor: false, temValor: true, categoria: "financeiro" },
-  { id: "task_created", label: "Quando uma tarefa é criada", precisaValor: false, temValor: false, categoria: "geral" },
-  { id: "event_created", label: "Quando um evento é criado na agenda", precisaValor: false, temValor: false, categoria: "geral" },
-  { id: "product_created", label: "Quando um produto é cadastrado", precisaValor: false, temValor: false, categoria: "estoque" },
-  { id: "product_low_stock", label: "Quando um produto fica com estoque baixo", precisaValor: false, temValor: false, categoria: "estoque" },
+  { id: "lead_created", label: "Quando um negócio é criado", precisaValor: false, precisaDias: false, temValor: true, categoria: "comercial" },
+  { id: "lead_stage", label: "Quando um negócio muda de etapa", precisaValor: true, precisaDias: false, temValor: true, categoria: "comercial" },
+  { id: "lead_won", label: "Quando um negócio é fechado (ganho)", precisaValor: false, precisaDias: false, temValor: true, categoria: "comercial" },
+  { id: "lead_lost", label: "Quando um negócio é perdido", precisaValor: false, precisaDias: false, temValor: true, categoria: "comercial" },
+  { id: "lead_stale", label: "Quando um negócio fica X dias sem contato", precisaValor: false, precisaDias: true, temValor: true, categoria: "comercial" },
+  { id: "client_created", label: "Quando um cliente é cadastrado", precisaValor: false, precisaDias: false, temValor: false, categoria: "comercial" },
+  { id: "budget_created", label: "Quando um orçamento é criado", precisaValor: false, precisaDias: false, temValor: true, categoria: "comercial" },
+  { id: "budget_approved", label: "Quando um orçamento é aprovado", precisaValor: false, precisaDias: false, temValor: true, categoria: "comercial" },
+  { id: "budget_expiring", label: "Quando um orçamento está a X dias de vencer", precisaValor: false, precisaDias: true, temValor: true, categoria: "comercial" },
+  { id: "budget_stale", label: "Quando um orçamento enviado fica X dias sem resposta", precisaValor: false, precisaDias: true, temValor: true, categoria: "comercial" },
+  { id: "project_created", label: "Quando uma obra é criada", precisaValor: false, precisaDias: false, temValor: true, categoria: "obras" },
+  { id: "project_paused", label: "Quando uma obra é pausada", precisaValor: false, precisaDias: false, temValor: true, categoria: "obras" },
+  { id: "project_done", label: "Quando uma obra é concluída", precisaValor: false, precisaDias: false, temValor: true, categoria: "obras" },
+  { id: "project_deadline", label: "Quando uma obra está a X dias do prazo final", precisaValor: false, precisaDias: true, temValor: true, categoria: "obras" },
+  { id: "finance_created", label: "Quando um lançamento financeiro é criado", precisaValor: false, precisaDias: false, temValor: true, categoria: "financeiro" },
+  { id: "finance_overdue", label: "Quando uma conta a receber vence sem pagamento", precisaValor: false, precisaDias: false, temValor: true, categoria: "financeiro" },
+  { id: "task_created", label: "Quando uma tarefa é criada", precisaValor: false, precisaDias: false, temValor: false, categoria: "geral" },
+  { id: "event_created", label: "Quando um evento é criado na agenda", precisaValor: false, precisaDias: false, temValor: false, categoria: "geral" },
+  { id: "product_created", label: "Quando um produto é cadastrado", precisaValor: false, precisaDias: false, temValor: false, categoria: "estoque" },
+  { id: "product_low_stock", label: "Quando um produto fica com estoque baixo", precisaValor: false, precisaDias: false, temValor: false, categoria: "estoque" },
 ] as const;
 
 export function gatilhoTemValor(id: string): boolean {
   return GATILHOS.find((g) => g.id === id)?.temValor ?? false;
+}
+export function gatilhoPrecisaDias(id: string): boolean {
+  return GATILHOS.find((g) => g.id === id)?.precisaDias ?? false;
 }
 
 export const ACOES = [
@@ -150,42 +160,55 @@ export async function runAutomations(
   const { data } = await sb.from("automations").select("*").eq("gatilho", gatilho).eq("ativo", true);
   const regras = filtrarRegras((data ?? []) as Regra[], gatilho, valor);
   for (const r of regras) {
-    // Regra-fantasma: condição de valor num gatilho cujo contexto não carrega
-    // valor. Em vez de nunca disparar em silêncio, registra o problema no log.
-    if (r.condicao != null && !gatilhoTemValor(r.gatilho)) {
-      await logRun(sb, tenant, r, "erro", "Condição de valor não se aplica a este gatilho — edite ou recrie a regra sem condição.");
-      continue;
-    }
-    if (!condicaoPassa(r.condicao, ctx)) continue; // condição não bateu — não executa, não conta como erro
-
-    // Idempotência por registro (quando o chamador identifica o registro).
-    if (dedupKey) {
-      const { error: dupErr } = await sb.from("automation_dedup").insert({
-        tenant_id: tenant,
-        automation_id: r.id,
-        chave: `${gatilho}:${dedupKey}`,
-      });
-      if (dupErr) continue; // já executada para este registro (ou corrida perdida) — ignora
-    }
-
-    // Modo teste: registra o que TERIA acontecido, sem criar nada.
-    if (r.dry_run) {
-      await logRun(sb, tenant, r, "simulado", "Modo teste — nada foi criado.");
-      continue;
-    }
-
-    let status: "ok" | "erro" = "ok";
-    let detalhe: string | null = null;
-    try {
-      await executar(sb, tenant, r, ctx);
-      await sb.rpc("bump_automation_exec", { aid: r.id }); // incremento atômico
-    } catch (e) {
-      status = "erro";
-      detalhe = e instanceof Error ? e.message.slice(0, 300) : "Erro desconhecido";
-    }
-    await logRun(sb, tenant, r, status, detalhe);
+    await executarRegra(sb, tenant, r, ctx, dedupKey ? `${gatilho}:${dedupKey}` : undefined);
   }
   return regras.length;
+}
+
+// Executa UMA regra com todas as garantias (fantasma → log de erro; condição;
+// idempotência via chave única; dry-run; log; contador atômico). Reutilizada
+// pelo caminho de evento (runAutomations) e pela varredura de tempo (sweep).
+export async function executarRegra(
+  sb: SB,
+  tenant: string,
+  r: Regra,
+  ctx: AutoCtx,
+  chaveDedup?: string,
+): Promise<void> {
+  // Regra-fantasma: condição de valor num gatilho cujo contexto não carrega
+  // valor. Em vez de nunca disparar em silêncio, registra o problema no log.
+  if (r.condicao != null && !gatilhoTemValor(r.gatilho)) {
+    await logRun(sb, tenant, r, "erro", "Condição de valor não se aplica a este gatilho — edite ou recrie a regra sem condição.");
+    return;
+  }
+  if (!condicaoPassa(r.condicao, ctx)) return; // condição não bateu — não executa, não conta como erro
+
+  // Idempotência por registro (quando o chamador identifica o registro).
+  if (chaveDedup) {
+    const { error: dupErr } = await sb.from("automation_dedup").insert({
+      tenant_id: tenant,
+      automation_id: r.id,
+      chave: chaveDedup,
+    });
+    if (dupErr) return; // já executada para este registro (ou corrida perdida) — ignora
+  }
+
+  // Modo teste: registra o que TERIA acontecido, sem criar nada.
+  if (r.dry_run) {
+    await logRun(sb, tenant, r, "simulado", "Modo teste — nada foi criado.");
+    return;
+  }
+
+  let status: "ok" | "erro" = "ok";
+  let detalhe: string | null = null;
+  try {
+    await executar(sb, tenant, r, ctx);
+    await sb.rpc("bump_automation_exec", { aid: r.id }); // incremento atômico
+  } catch (e) {
+    status = "erro";
+    detalhe = e instanceof Error ? e.message.slice(0, 300) : "Erro desconhecido";
+  }
+  await logRun(sb, tenant, r, status, detalhe);
 }
 
 async function logRun(sb: SB, tenant: string, r: Regra, status: "ok" | "erro" | "simulado", detalhe: string | null) {

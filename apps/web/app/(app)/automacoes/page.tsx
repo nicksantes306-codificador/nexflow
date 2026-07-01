@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Tables } from "@nexflow/db";
 import { PageHeader, KpiCard, EmptyHint } from "@/components/ui";
-import { labelGatilho, labelAcao, categoriaGatilho, OPERADORES, type Categoria, type Condicao } from "@/lib/automations/engine";
+import { labelGatilho, labelAcao, categoriaGatilho, gatilhoPrecisaDias, OPERADORES, type Categoria, type Condicao } from "@/lib/automations/engine";
 import { moneyFull } from "@/lib/format";
 import { Builder } from "./builder";
 import { toggleAutomacao, excluirAutomacao, toggleDryRun } from "./actions";
@@ -129,7 +129,7 @@ export default async function AutomacoesPage() {
                           </form>
                         </div>
                         <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11.5px] text-[var(--muted)]">
-                          <span className="rounded-md bg-[color-mix(in_srgb,var(--accent)_12%,transparent)] px-1.5 py-0.5 font-semibold text-[var(--accent)]">{labelGatilho(r.gatilho)}{r.gatilho_valor ? ` · ${r.gatilho_valor}` : ""}</span>
+                          <span className="rounded-md bg-[color-mix(in_srgb,var(--accent)_12%,transparent)] px-1.5 py-0.5 font-semibold text-[var(--accent)]">{labelGatilho(r.gatilho)}{r.gatilho_valor ? ` · ${r.gatilho_valor}${gatilhoPrecisaDias(r.gatilho) ? " dias" : ""}` : ""}</span>
                           <svg className="h-3 w-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
                           <span className="rounded-md bg-[color-mix(in_srgb,var(--accent-2)_12%,transparent)] px-1.5 py-0.5 font-semibold text-[var(--accent-2)]">{labelAcao(r.acao)}</span>
                         </p>

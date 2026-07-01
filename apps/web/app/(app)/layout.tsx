@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { buscarNotificacoes } from "@/lib/notifications";
+import { varreduraAutomacoes } from "@/lib/automations/sweep";
 import { AppSidebar } from "./app-sidebar";
 import { MobileNav } from "./mobile-nav";
 import { CommandPalette } from "@/components/command-palette";
@@ -26,6 +27,15 @@ export default async function AppLayout({
     precisaMfa = !!aal && aal.currentLevel === "aal1" && aal.nextLevel === "aal2";
   } catch {}
   if (precisaMfa) redirect("/mfa");
+
+  // Varredura das automações de tempo (prazo, sem resposta, vencida…).
+  // Idempotente (dedup no banco) — rodar em toda visita não duplica efeito.
+  try {
+    const { data: tenant } = await supabase.rpc("current_tenant_id");
+    if (tenant) await varreduraAutomacoes(supabase, tenant);
+  } catch {
+    /* best-effort — nunca bloqueia o app */
+  }
 
   const notificacoes = await buscarNotificacoes();
 

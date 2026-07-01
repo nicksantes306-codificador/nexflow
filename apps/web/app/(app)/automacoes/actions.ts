@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { Json } from "@nexflow/db";
 import { sugerirAutomacaoIA, type SugestaoAutomacao } from "@/lib/automations/ai-flow";
-import { gatilhoTemValor } from "@/lib/automations/engine";
+import { gatilhoTemValor, gatilhoPrecisaDias } from "@/lib/automations/engine";
 
 export type AutoState = { ok?: boolean; error?: string };
 
@@ -39,7 +39,14 @@ export async function criarAutomacao(formData: FormData): Promise<AutoState> {
   const { data: tenant } = await supabase.rpc("current_tenant_id");
   if (!tenant) return { error: "Nenhum tenant ativo." };
 
-  const gatilhoValor = gatilho === "lead_stage" ? s(formData, "gatilho_valor") || null : null;
+  // gatilho_valor: estágio-alvo (lead_stage) OU nº de dias (gatilhos de tempo).
+  let gatilhoValor: string | null = null;
+  if (gatilho === "lead_stage") {
+    gatilhoValor = s(formData, "gatilho_valor") || null;
+  } else if (gatilhoPrecisaDias(gatilho)) {
+    const dias = Number(s(formData, "p_dias"));
+    gatilhoValor = Number.isFinite(dias) && dias > 0 ? String(Math.floor(dias)) : null; // null = padrão do gatilho
+  }
 
   // Condição opcional: só executa se {valor} {operador} {número}.
   // Só é aceita em gatilhos cujo contexto carrega valor — senão a regra
