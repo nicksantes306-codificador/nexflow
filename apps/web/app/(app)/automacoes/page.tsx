@@ -37,14 +37,24 @@ export default async function AutomacoesPage() {
   const supabase = await createClient();
   const [{ data }, { data: runsData }] = await Promise.all([
     supabase.from("automations").select("*").order("created_at", { ascending: false }),
-    supabase.from("automation_runs").select("*").order("created_at", { ascending: false }).limit(30),
+    supabase.from("automation_runs").select("*").order("created_at", { ascending: false }).limit(80),
   ]);
   const regras = (data ?? []) as Automacao[];
   const execucoesRecentes = (runsData ?? []) as Execucao[];
   const ativas = regras.filter((r) => r.ativo).length;
   const execucoes = regras.reduce((a, r) => a + (r.exec_count ?? 0), 0);
-  const ok = execucoesRecentes.filter((e) => e.status === "ok").length;
-  const taxaSucesso = execucoesRecentes.length ? Math.round((ok / execucoesRecentes.length) * 100) : 100;
+  const naoSimuladas = execucoesRecentes.filter((e) => e.status !== "simulado");
+  const ok = naoSimuladas.filter((e) => e.status === "ok").length;
+  const taxaSucesso = naoSimuladas.length ? Math.round((ok / naoSimuladas.length) * 100) : 100;
+
+  // Histórico por regra (para o card): já vem ordenado do mais recente.
+  const runsPorRegra = new Map<string, Execucao[]>();
+  for (const e of execucoesRecentes) {
+    if (!e.automation_id) continue;
+    const lista = runsPorRegra.get(e.automation_id) ?? [];
+    if (lista.length < 5) lista.push(e);
+    runsPorRegra.set(e.automation_id, lista);
+  }
 
   return (
     <div className="p-5 md:p-7">
@@ -58,7 +68,7 @@ export default async function AutomacoesPage() {
         <KpiCard label="Regras" value={String(regras.length)} icon={ICON} />
         <KpiCard label="Ativas" value={String(ativas)} tone="green" />
         <KpiCard label="Execuções" value={String(execucoes)} hint="total disparado" />
-        <KpiCard label="Taxa de sucesso" value={`${taxaSucesso}%`} tone={taxaSucesso >= 90 ? "green" : taxaSucesso >= 70 ? "amber" : "red"} hint="últimas 30 execuções" />
+        <KpiCard label="Taxa de sucesso" value={`${taxaSucesso}%`} tone={taxaSucesso >= 90 ? "green" : taxaSucesso >= 70 ? "amber" : "red"} hint="execuções recentes (fora simulações)" />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
@@ -102,6 +112,14 @@ export default async function AutomacoesPage() {
             <ul className="grid grid-cols-1 gap-3 lg:grid-cols-2">
               {regras.map((r) => {
                 const cat = CATEGORIA_STYLE[categoriaGatilho(r.gatilho)];
+                const historico = runsPorRegra.get(r.id) ?? [];
+                const ultimaComErro = historico[0]?.status === "erro";
+                // Estado do card: erro (última execução falhou) > ativa > pausada
+                const estado = ultimaComErro
+                  ? { cor: "var(--bad)", rotulo: "Erro na última execução" }
+                  : r.ativo
+                    ? { cor: "var(--ok)", rotulo: "Ativa" }
+                    : { cor: "var(--muted)", rotulo: "Pausada" };
                 return (
                   <li key={r.id} className="rounded-2xl border border-[var(--border)] bg-[var(--panel)] p-4" style={{ boxShadow: "var(--shadow)" }}>
                     <div className="flex items-start gap-3">
@@ -146,9 +164,9 @@ export default async function AutomacoesPage() {
                     </div>
                     <div className="mt-3 flex items-center justify-between border-t border-[var(--border)] pt-2.5 text-[11px] text-[var(--muted)]">
                       <span className="flex flex-wrap items-center gap-2">
-                        <span className="inline-flex items-center gap-1.5 font-bold" style={{ color: r.ativo ? "var(--ok)" : "var(--muted)" }}>
-                          <span className="h-1.5 w-1.5 rounded-full" style={{ background: r.ativo ? "var(--ok)" : "var(--muted)" }} />
-                          {r.ativo ? "Ativa" : "Pausada"}
+                        <span className="inline-flex items-center gap-1.5 font-bold" style={{ color: estado.cor }}>
+                          <span className="h-1.5 w-1.5 rounded-full" style={{ background: estado.cor }} />
+                          {estado.rotulo}
                         </span>
                         · {r.exec_count ?? 0} execuç{(r.exec_count ?? 0) === 1 ? "ão" : "ões"}
                         <form action={toggleDryRun} className="inline">
@@ -173,6 +191,34 @@ export default async function AutomacoesPage() {
                         </button>
                       </form>
                     </div>
+
+                    {/* Histórico de execuções desta regra */}
+                    {historico.length > 0 && (
+                      <details className="mt-2 border-t border-[var(--border)] pt-2 [&_summary::-webkit-details-marker]:hidden">
+                        <summary className="flex cursor-pointer items-center gap-1.5 text-[11px] font-bold text-[var(--muted)] transition hover:text-[var(--text)]">
+                          <svg className="h-3 w-3 transition-transform [details[open]_&]:rotate-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+                          Histórico ({historico.length})
+                        </summary>
+                        <ul className="mt-2 space-y-1.5">
+                          {historico.map((e) => (
+                            <li key={e.id} className="flex items-start gap-2 text-[11px]">
+                              <span
+                                className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full"
+                                style={{ background: e.status === "ok" ? "var(--ok)" : e.status === "simulado" ? "var(--warn)" : "var(--bad)" }}
+                              />
+                              <span className="min-w-0 flex-1 text-[var(--muted)]">
+                                <span className="font-semibold text-[var(--text)]">
+                                  {e.status === "ok" ? "Executada" : e.status === "simulado" ? "Simulada" : "Falhou"}
+                                </span>
+                                {" · "}
+                                {new Date(e.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                                {e.detalhe ? ` · ${e.detalhe}` : ""}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </details>
+                    )}
                   </li>
                 );
               })}
