@@ -1,0 +1,12 @@
+diff --git a/install.js b/install.js
+index d97764edaa6e2ade24be5bcaa1c0e06064cb18b9..215f264d5155fa8862894aa9a19cb764579bd134 100644
+--- a/install.js
++++ b/install.js
+@@ -223,6 +223,7 @@ function maybeOptimizePackage(binPath) {
+     try {
+       fs2.linkSync(binPath, tempPath);
+       fs2.renameSync(tempPath, toPath);
++      fs2.chmodSync(toPath, 493);
+       isToPathJS = false;
+       fs2.unlinkSync(tempPath);
+     } catch {

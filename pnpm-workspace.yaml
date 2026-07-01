@@ -6,3 +6,6 @@ allowBuilds:
   esbuild: true
   sharp: true
   unrs-resolver: true
+
+patchedDependencies:
+  esbuild@0.21.5: patches/esbuild@0.21.5.patch
