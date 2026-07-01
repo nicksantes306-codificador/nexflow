@@ -8,6 +8,7 @@
     "node": ">=20.0.0"
   },
   "scripts": {
+    "postinstall": "node scripts/fix-esbuild-perms.cjs",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "start": "turbo run start --filter=@nexflow/web",
